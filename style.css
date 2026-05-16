@@ -132,12 +132,16 @@ b {
             }
 
         }
+
+        .material-symbols-outlined {
+            cursor: pointer;
+        }
+
+
     }
 }
 
-.material-icons-sharp {
-    cursor: pointer;
-}
+
 
 #menu-btn {
     display: none;
@@ -282,18 +286,18 @@ main .analyse {
     height: 8vw;
 }
 
-.kpi_header{
+.kpi_header {
     display: flex;
     justify-content: space-between;
     flex-direction: row;
 
-    .material-symbols-outlined{
+    .material-symbols-outlined {
         color: #ebc107;
         font-size: 2vw;
     }
 }
 
-#termino_{
+#termino_ {
     color: #07e777;
 
 }
@@ -314,14 +318,19 @@ main .card_kpi:hover {
     color: var(--primary-color);
 }
 
-.charts-container {
+/* .charts-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
     gap: 1.75rem;
-}
+} */
 
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+}
 
 .chart_card {
     width: 100%;
@@ -339,7 +348,7 @@ main .card_kpi:hover {
     box-shadow: var(--box-shadow);
 }
 
-.map-section{
+.map-section {
     height: 82vh;
     background-color: var(--color-white);
     padding: 1vw;

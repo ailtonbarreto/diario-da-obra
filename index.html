@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -13,7 +15,7 @@
     <title>Diario da Obra</title>
 </head>
 
-<body class="light-mode-variables">
+<body class="dark-mode-variables">
 
 
     <div class="container">
@@ -45,13 +47,6 @@
 
                     <h3>Dashboard</h3>
 
-                </a>
-
-                <a href="/map.html" class="">
-                    <span class="material-symbols-outlined">
-                        map
-                    </span>
-                    <h3>Mapa</h3>
                 </a>
 
                 <a href="editar.html">
@@ -210,33 +205,27 @@
 
                     </div>
 
-                    
+
                     <h1 id="termino">01/02/2026</h1>
 
                 </div>
 
             </div>
 
-            <div class="charts-container" style="display: flex; flex-direction: row; justify-content: flex-start;">
 
-                <div style="display: flex; flex-direction: column; gap: 1.75rem;">
 
-                    <div style="width:25vw; height:15vw;" class="chart_card">
+            <div class="charts-container">
 
-                        <h3>Status Da Obra</h3>
 
-                        <div id="gauge" style="width:100%; height:150%;"></div>
 
-                    </div>
+                <div class="chart_card">
 
-                    <div class="chart_card">
+                    <h3>Status Da Obra</h3>
 
-                        <div id="tabela_etapas"></div>
-
-                    </div>
-
+                    <div id="gauge" style="width:100%; height:150%;"></div>
 
                 </div>
+
 
                 <div class="chart_card" style="height:auto;">
 
@@ -244,6 +233,19 @@
                     <h3>Evolução Da Obra</h3>
 
                     <div id="line" style="width:100%;height:90%;"></div>
+
+                </div>
+
+                <div class="chart_card">
+
+                    <div id="tabela_etapas"></div>
+
+                </div>
+
+                <div class="chart_card map-card" style="height:auto;">
+
+                    <div id="map"></div>
+
 
                 </div>
 
@@ -277,6 +279,7 @@
         document.body.classList.toggle('dark-mode-variables');
         darkMode.querySelector('span:nth-child(1)').classList.toggle('active');
     })
+
 
 
 </script>
