@@ -365,123 +365,83 @@ window.addEventListener('load', () => {
 
     function graficoLinhaEvolucao() {
 
-        const diasTrabalhados =
-            parseInt(
-                document.getElementById(
-                    "qtd_dias_trabalhados"
-                ).innerText
-            ) || 0;
+        const diasTrabalhados = parseInt(document.getElementById("qtd_dias_trabalhados").innerText) || 0;
+        const tempoObra = parseInt(document.getElementById("tempo_obra").value);
 
-        const tempoObra =
-            parseInt(
-                document.getElementById(
-                    "tempo_obra"
-                ).value
-            );
+        const progressoRealizado = [];
+        for (let d = 1; d <= diasTrabalhados; d++) {
+            progressoRealizado.push(d);
+        }
 
-        const eixoX =
-            Array.from({
-                length: Math.max(
-                    tempoObra,
-                    diasTrabalhados
-                )
-            }, (_, i) => i + 1);
+        const progressoMeta = [];
+        for (let d = 1; d <= tempoObra; d++) {
+            progressoMeta.push(d);
+        }
 
-        const progressoRealizado =
-            Array.from({
-                length: diasTrabalhados
-            }, (_, i) => i + 1);
+        const maxDias = Math.max(tempoObra, diasTrabalhados);
+        const eixoX = Array.from({ length: maxDias }, (_, i) => i + 1);
 
-        const progressoMeta =
-            Array.from({
-                length: tempoObra
-            }, (_, i) => i + 1);
+        const corRotulo = getCorRotulo();
 
-        const corRotulo =
-            getCorRotulo();
+        const optionLine = {
+            tooltip: { trigger: 'axis' },
 
-        myLineChart.setOption({
-
-            tooltip: {
-                trigger: 'axis'
+            legend: {
+                show: false,
+                data: ['Meta', 'Dias Trabalhados'],
+                textStyle: { color: corRotulo }
             },
 
             grid: {
                 left: 0,
                 right: 0,
                 top: 0,
-                bottom: 0
+                bottom: 0,
+                containLabel: false
             },
 
             xAxis: {
-
                 type: 'category',
-
                 data: eixoX,
-
-                axisLabel: {
-                    color: corRotulo
-                }
+                axisLabel: { color: corRotulo }
             },
 
             yAxis: {
-
                 show: false,
-
                 type: 'value',
-
-                axisLabel: {
-                    color: corRotulo
-                }
+                axisLabel: { color: corRotulo }
             },
 
             series: [
-
                 {
+                    name: 'Dias Trabalhados',
                     type: 'line',
-
                     smooth: true,
-
                     symbol: 'none',
-
-                    data: progressoRealizado,
-
-                    lineStyle: {
-                        width: 3,
-                        color: '#0853df'
-                    },
-
-                    areaStyle: {
-                        color: '#0853df'
-                    }
+                    lineStyle: { width: 2, color: '#0853df' },
+                    itemStyle: { color: '#0853df' },
+                    areaStyle: { color: '#0853df' },
+                    data: progressoRealizado
                 },
-
                 {
+                    name: 'Meta',
                     type: 'line',
-
                     smooth: true,
-
                     symbol: 'none',
-
-                    data: progressoMeta,
-
-                    lineStyle: {
-                        width: 2,
-                        type: 'dashed',
-                        color: '#999'
-                    },
-
-                    areaStyle: {
-                        opacity: 0
-                    }
+                    lineStyle: { width: 2, color: '#0853df' },
+                    itemStyle: { color: '#0853df' },
+                    areaStyle: { opacity: 0 },
+                    data: progressoMeta
                 }
             ]
-        });
+        };
+
+        myLineChart.setOption(optionLine);
     }
 
     // ============================================================
     // VELOCÍMETRO
-    // ============================================================
+
 
     function graficoVelocimetro() {
 
@@ -632,7 +592,7 @@ window.addEventListener('load', () => {
 
         center: [-20.5373611, -47.4548611],
 
-        zoom: 10,
+        zoom: 2,
 
         layers: [darkTiles]
     });
@@ -641,7 +601,7 @@ window.addEventListener('load', () => {
 
     const obrasMapa = {
 
-        "Obra 1": {
+        "Cidade Jardim": {
 
             coords: [
                 -20.5938139,
@@ -652,7 +612,7 @@ window.addEventListener('load', () => {
             <div style="text-align:center;">
 
                 <h3>
-                    Obra 1
+                    Restinga - SP
                 </h3>
 
                 <img
@@ -671,7 +631,7 @@ window.addEventListener('load', () => {
         `
         },
 
-        "Obra 2": {
+        "Jardim Arizona": {
 
             coords: [
                 -20.5349167,
@@ -682,7 +642,7 @@ window.addEventListener('load', () => {
             <div style="text-align:center;">
 
                 <h3>
-                    Obra 2
+                    Jardim Arizona
                 </h3>
 
                 <img
@@ -752,7 +712,7 @@ window.addEventListener('load', () => {
 
         map.flyTo(
             dados.coords,
-            16,
+            15,
             {
                 duration: 1.5
             }
