@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="img.png" type="image/x-icon">
+    <title>Dashboard Financeiro</title>
+</head>
+
+<body class="dark-mode-variables">
+
+    <div class="container">
+
+        <aside>
+
+            <div class="toggle">
+
+                <div class="close" id="close-btn">
+                    <span class="material-icons-sharp">
+                        close
+                    </span>
+                </div>
+            </div>
+
+            <div class="sidebar">
+
+                <div class="img-user">
+
+                    <img src="logo.png" alt="">
+
+                </div>
+
+                <a href="index.html">
+                    <span class="material-icons-sharp">
+                        dashboard
+                    </span>
+                    <h3>Dashboard</h3>
+                </a>
+
+
+
+                <a href="#" >
+                    <span class="material-icons-sharp">
+                        edit
+                    </span>
+                    <h3>Editar</h3>
+                </a>
+
+                <a href="index.html" id="logout-btn" style="display: none;">
+                    <span class="material-icons-sharp">
+                        logout
+                    </span>
+                    <h3>Logout</h3>
+                </a>
+            </div>
+
+        </aside>
+
+        <main>
+
+
+            <div class="header">
+
+                <button id="menu-btn">
+                    <span class="material-icons-sharp">
+                        menu
+                    </span>
+                </button>
+
+                <h1>Olá, Empresa</h1>
+
+                <div class="datas">
+
+
+                    <div class="dark-mode">
+
+                        <span class="material-icons-sharp active">
+                            brightness_medium
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <iframe id="iframe"
+                src="https://docs.google.com/spreadsheets/d/1m0JBptFT9k3Y8ePhiDMzelHt3MUOYDz4qnUA_n98i14/edit?gid=1044850605#gid=1044850605"
+                style="width: 100%; height:80vh"></iframe>
+
+
+
+        </main>
+
+    </div>
+
+</body>
+
+<script>
+
+    const sideMenu = document.querySelector('aside');
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-btn');
+
+    const darkMode = document.querySelector('.dark-mode');
+
+    menuBtn.addEventListener('click', () => {
+        sideMenu.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        sideMenu.style.display = 'none';
+    });
+
+    darkMode.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode-variables');
+        darkMode.querySelector('span:nth-child(1)').classList.toggle('active');
+        darkMode.querySelector('span:nth-child(2)').classList.toggle('active');
+    })
+
+
+
+</script>
+
+</html>
