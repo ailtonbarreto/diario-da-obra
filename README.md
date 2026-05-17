@@ -3,16 +3,16 @@
 Dashboard moderno para acompanhamento de obras em tempo real, utilizando gráficos interativos, mapa integrado, indicadores de progresso e integração com Google Sheets.
 
 🚀 Funcionalidades
-✅ Indicadores de obra
-✅ Evolução da obra em gráfico
-✅ Velocímetro de progresso
-✅ Integração com Google Sheets
-✅ Mapa interativo com Leaflet
-✅ Tema Dark Mode
-✅ Tooltip dinâmica por etapa
-✅ Tabela de etapas da obra
-✅ Layout responsivo
-✅ Interface moderna estilo BI Dashboard
+✅ Indicadores de obra;
+✅ Evolução da obra em gráfico;
+✅ Velocímetro de progresso;
+✅ Integração com Google Sheets;
+✅ Mapa interativo com Leaflet;
+✅ Tema Dark Mode;
+✅ Tooltip dinâmica por etapa;
+✅ Tabela de etapas da obra;
+✅ Layout responsivo;
+✅ Interface moderna estilo BI Dashboard.
 
 🛠️ Tecnologias Utilizadas
 HTML5
