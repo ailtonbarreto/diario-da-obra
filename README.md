@@ -47,4 +47,6 @@ Linha temporal com:
 
 Meta planejada
 Progresso executado
-Tooltip mostrando etapas realizadas por dia
+Tooltip mostrando etapas realizadas por dia.
+
+Projeto no ar: [ www.ailtonbarreto.github.io/diario-da-obra](https://ailtonbarreto.github.io/diario-da-obra/)
