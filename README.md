@@ -3,25 +3,25 @@
 Dashboard moderno para acompanhamento de obras em tempo real, utilizando gráficos interativos, mapa integrado, indicadores de progresso e integração com Google Sheets.
 
 🚀 Funcionalidades
-✅ Indicadores de obra;
-✅ Evolução da obra em gráfico;
-✅ Velocímetro de progresso;
-✅ Integração com Google Sheets;
-✅ Mapa interativo com Leaflet;
-✅ Tema Dark Mode;
-✅ Tooltip dinâmica por etapa;
-✅ Tabela de etapas da obra;
-✅ Layout responsivo;
-✅ Interface moderna estilo BI Dashboard.
+1. Indicadores de obra;
+2. Evolução da obra em gráfico;
+3. Velocímetro de progresso;
+4. Integração com Google Sheets;
+5. Mapa interativo com Leaflet;
+6. Tema Dark Mode;
+7. Tooltip dinâmica por etapa;
+8. Tabela de etapas da obra;
+9. Layout responsivo;
+10. Interface moderna estilo BI Dashboard.
 
 🛠️ Tecnologias Utilizadas
-HTML5
-CSS3
-JavaScript
-ECharts
-Leaflet.js
-PapaParse
-Google Sheets CSV API
+1. HTML5
+2. CSS3
+3. JavaScript
+4. ECharts
+5. Leaflet.js
+6. PapaParse
+7. Google Sheets CSV API
 
 📈 Indicadores do Dashboard
 
@@ -51,5 +51,5 @@ Tooltip mostrando etapas realizadas por dia.
 
 Projeto no ar: [ www.ailtonbarreto.github.io/diario-da-obra](https://ailtonbarreto.github.io/diario-da-obra/)
 
-<img width="1893" height="918" alt="image" src="https://github.com/user-attachments/assets/a492b539-8d30-4bd8-9175-ea20b79f8652" />
+<img width="1893" height="918" alt="image" src="https://github.com/user-attachments/assets/a492b539-8d30-4bd8-9175-ea20b79f8652"/>
 
