@@ -269,6 +269,7 @@ main .card_kpi:hover {
 .tabela-etapas td {
     text-align: center;
     vertical-align: center;
+    font-size: 15px;
 }
 
 

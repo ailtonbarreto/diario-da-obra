@@ -224,7 +224,7 @@ window.addEventListener('load', () => {
 
         tabela.innerHTML = html;
 
-        tabela.style.maxHeight = "12vw";
+        tabela.style.maxHeight = "14vw";
         tabela.style.overflowY = "auto";
         tabela.style.overflowX = "hidden";
 
@@ -527,7 +527,7 @@ window.addEventListener('load', () => {
             corProgresso = '#00c851';
         }
         else if (porcentagem > 33) {
-            corProgresso = '#08d8df';
+            corProgresso = '#088af5';
         }
 
         myChart.setOption({
