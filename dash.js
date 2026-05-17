@@ -669,13 +669,13 @@ window.addEventListener('load', () => {
                 <img
                     src="./img/house.png"
                     style="
-                        width:120px;
+                        width:3vw;
                         border-radius:10px;
                     "
                 >
 
                 <p>
-                    Restinga - SP
+                    Cidade Jardim
                 </p>
 
             </div>
@@ -693,13 +693,13 @@ window.addEventListener('load', () => {
             <div style="text-align:center;">
 
                 <h3>
-                    Jardim Arizona
+                    Franca - SP
                 </h3>
 
                 <img
                     src="./img/house.png"
                     style="
-                        width:120px;
+                        width:3vw;
                         border-radius:10px;
                     "
                 >
