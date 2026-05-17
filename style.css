@@ -297,6 +297,10 @@ main .analyse {
     }
 }
 
+#inicio{
+    color: #e707eb;
+}
+
 #termino_ {
     color: #07e777;
 
@@ -318,22 +322,16 @@ main .card_kpi:hover {
     color: var(--primary-color);
 }
 
-/* .charts-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100%;
-    gap: 1.75rem;
-} */
 
 .charts-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* grid-template-columns: repeat(3, 1fr); */
+    grid-template-columns: 25% 37% 35%;
     gap: 1.75rem;
 }
 
 .chart_card {
-    width: 100%;
+    /* width: 100%; */
     height: auto;
     background-color: var(--color-white);
     border-radius: var(--card-border-radius);
@@ -348,19 +346,24 @@ main .card_kpi:hover {
     box-shadow: var(--box-shadow);
 }
 
-.map-section {
-    height: 82vh;
-    background-color: var(--color-white);
-    padding: 1vw;
-    border-radius: var(--card-border-radius);
-    box-shadow: var(--box-shadow);
-}
+
 
 #map {
     width: 100%;
     height: 100%;
 }
 
+.tabela-etapas {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-etapas th,
+.tabela-etapas td {
+    text-align: center;
+    vertical-align: center;
+}
 
 .hide-mobile {
     display: none;

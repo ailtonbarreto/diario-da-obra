@@ -384,12 +384,63 @@ window.addEventListener('load', () => {
         const corRotulo = getCorRotulo();
 
         const optionLine = {
-            tooltip: { trigger: 'axis' },
+            tooltip: {
 
-            legend: {
-                show: false,
-                data: ['Meta', 'Dias Trabalhados'],
-                textStyle: { color: corRotulo }
+                trigger: 'axis',
+
+                formatter: function (params) {
+
+                    const diaAtual =
+                        Number(params[0].axisValue);
+
+                    const obraNorm =
+                        normalizarNome(obra.value);
+
+                    const itens =
+                        movimentacoesBrutas
+                            .filter(i =>
+                                normalizarNome(i.obra)
+                                === obraNorm
+                            )
+                            .sort((a, b) => a.dia - b.dia);
+
+                    // pega SOMENTE as etapas do dia atual
+                    const etapasDoDia =
+                        itens.filter(i =>
+                            i.dia === diaAtual
+                        );
+
+                    if (!etapasDoDia.length) {
+                        return `
+                <div>
+                    Nenhuma etapa
+                </div>
+            `;
+                    }
+
+                    // cria lista com quebra de linha
+                    const etapasHTML =
+                        etapasDoDia
+                            .map(i => `• ${i.etapa}`)
+                            .join('<br>');
+
+                    return `
+            <div style="
+                padding:8px;
+                line-height:1.6;
+            ">
+
+                <strong>
+                    Dia ${diaAtual}
+                </strong>
+
+                <br><br>
+
+                ${etapasHTML}
+
+            </div>
+        `;
+                }
             },
 
             grid: {
