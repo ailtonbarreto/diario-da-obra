@@ -652,7 +652,7 @@ window.addEventListener('load', () => {
 
     const obrasMapa = {
 
-        "Cidade Jardim": {
+        "Obra 1": {
 
             coords: [
                 -20.5938139,
@@ -675,14 +675,14 @@ window.addEventListener('load', () => {
                 >
 
                 <p>
-                    Cidade Jardim
+                    Obra 1
                 </p>
 
             </div>
         `
         },
 
-        "Jardim Arizona": {
+        "Obra 2": {
 
             coords: [
                 -20.5349167,
@@ -705,7 +705,7 @@ window.addEventListener('load', () => {
                 >
 
                 <p>
-                    Jardim Arizona
+                    Obra 2
                 </p>
 
             </div>
