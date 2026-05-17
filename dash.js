@@ -496,10 +496,10 @@ window.addEventListener('load', () => {
 
     function graficoVelocimetro() {
 
-        const diasTrabalhados =
+        const DiasCorridos =
             parseInt(
                 document.getElementById(
-                    "qtd_dias_trabalhados"
+                    "qtd_dias_corridos"
                 ).innerText
             ) || 0;
 
@@ -514,7 +514,7 @@ window.addEventListener('load', () => {
             Math.min(
                 100,
                 Math.round(
-                    (diasTrabalhados / tempoObra) * 100
+                    (DiasCorridos / tempoObra) * 100
                 )
             );
 
