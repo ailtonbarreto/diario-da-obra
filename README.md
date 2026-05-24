@@ -44,5 +44,6 @@ Tooltip mostrando etapas realizadas por dia.
 
 Projeto no ar: [ www.ailtonbarreto.github.io/diario-da-obra](https://ailtonbarreto.github.io/diario-da-obra/)
 
-<img width="1893" height="918" alt="image" src="https://github.com/user-attachments/assets/a492b539-8d30-4bd8-9175-ea20b79f8652"/>
+<img width="1895" height="913" alt="image" src="https://github.com/user-attachments/assets/f0126464-0b41-4985-8dad-766a60aea1cd" />
+
 
