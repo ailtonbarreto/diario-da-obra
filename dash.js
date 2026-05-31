@@ -410,8 +410,19 @@ window.addEventListener('load', () => {
 
     function graficoLinhaEvolucao() {
 
-        const diasTrabalhados = parseInt(document.getElementById("qtd_dias_trabalhados").innerText) || 0;
-        const tempoObra = parseInt(document.getElementById("tempo_obra").value);
+        const diasTrabalhados =
+            parseInt(
+                document.getElementById(
+                    "qtd_dias_trabalhados"
+                ).innerText
+            ) || 0;
+
+        const tempoObra =
+            parseInt(
+                document.getElementById(
+                    "tempo_obra_escolhido"
+                ).innerText
+            ) || 0;
 
         const progressoRealizado = [];
         for (let d = 1; d <= diasTrabalhados; d++) {
@@ -541,27 +552,29 @@ window.addEventListener('load', () => {
 
     function graficoVelocimetro() {
 
-        const DiasCorridos =
+        const diasTrabalhados =
             parseInt(
                 document.getElementById(
-                    "qtd_dias_corridos"
+                    "qtd_dias_trabalhados"
                 ).innerText
             ) || 0;
 
         const tempoObra =
             parseInt(
                 document.getElementById(
-                    "tempo_obra"
-                ).value
-            );
+                    "tempo_obra_escolhido"
+                ).innerText
+            ) || 0;
 
         const porcentagem =
-            Math.min(
-                100,
-                Math.round(
-                    (DiasCorridos / tempoObra) * 100
+            tempoObra > 0
+                ? Math.min(
+                    100,
+                    Math.round(
+                        (diasTrabalhados / tempoObra) * 100
+                    )
                 )
-            );
+                : 0;
 
         const corRotulo =
             getCorRotulo();
