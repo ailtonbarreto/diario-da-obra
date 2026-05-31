@@ -70,6 +70,7 @@ window.addEventListener('load', () => {
     // OBSERVA DARK MODE
     // ============================================================
 
+
     function atualizarTemaGraficos() {
 
         const cor = getCorRotulo();
@@ -258,7 +259,35 @@ window.addEventListener('load', () => {
 
     // ============================================================
     // INDICADORES
-    // ============================================================
+
+
+    function contarDiasUteis(dataInicio, dataFim) {
+
+        let diasUteis = 0;
+
+        const dataAtual =
+            new Date(dataInicio);
+
+        while (dataAtual <= dataFim) {
+
+            const diaSemana =
+                dataAtual.getDay();
+
+            if (
+                diaSemana !== 0 &&
+                diaSemana !== 6
+            ) {
+                diasUteis++;
+            }
+
+            dataAtual.setDate(
+                dataAtual.getDate() + 1
+            );
+        }
+
+        return diasUteis;
+    }
+
 
     function atualizarIndicadores() {
 
@@ -298,7 +327,7 @@ window.addEventListener('load', () => {
                 document.getElementById("tempo_obra").value
             );
 
-        elTempoEscolhido.innerText = tempoObra;
+        // elTempoEscolhido.innerText = tempoObra;
 
         if (!datas.length) {
 
@@ -313,6 +342,13 @@ window.addEventListener('load', () => {
         const menor =
             new Date(Math.min(...datas));
 
+        // const termino =
+        //     new Date(menor);
+
+        // termino.setDate(
+        //     termino.getDate() + tempoObra
+        // );
+
         const termino =
             new Date(menor);
 
@@ -320,6 +356,14 @@ window.addEventListener('load', () => {
             termino.getDate() + tempoObra
         );
 
+        const diasUteis =
+            contarDiasUteis(
+                menor,
+                termino
+            );
+
+        elTempoEscolhido.innerText =
+            diasUteis;
         function formatarData(d) {
 
             return `
@@ -335,15 +379,16 @@ window.addEventListener('load', () => {
         elPrev.innerText =
             formatarData(termino);
 
-        const hoje = new Date();
+        const maior =
+            new Date(Math.max(...datas));
 
-        const diffHoje = Math.ceil(
-            (hoje - menor) / 86400000
+        const diffDias = Math.ceil(
+            (maior - menor) / 86400000
         );
 
         elCorridos.innerText =
-            diffHoje > 0
-                ? diffHoje
+            diffDias >= 0
+                ? diffDias
                 : 0;
 
         const diasTrabalhados =
