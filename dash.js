@@ -113,9 +113,7 @@ window.addEventListener('load', () => {
         attributes: true
     });
 
-    // ============================================================
-    // CARREGA PLANILHA
-    // ============================================================
+    // CARREGA PLANILHA ============================================================
 
     fetch(url)
         .then(response => response.text())
@@ -136,19 +134,16 @@ window.addEventListener('load', () => {
             movimentacoesBrutas =
                 resultados.data.map(row => ({
 
-                    obra:
-                        (row['obra'] || '').trim(),
+                    obra: (row['obra'] || '').trim(),
 
-                    data:
-                        (row['data'] || '').trim(),
+                    data: (row['data'] || '').trim(),
 
-                    dia:
-                        parseInt(row['dia'] || 0) || 0,
+                    dia: parseInt(row['dia'] || 0) || 0,
 
-                    etapa:
-                        (row['etapa'] || '').trim()
+                    etapa: (row['etapa'] || '').trim(),
+
+                    status: (row['status'] || '').trim().toUpperCase()
                 }));
-
             const obrasUnicas = [
                 ...new Set(
                     movimentacoesBrutas
@@ -173,13 +168,14 @@ window.addEventListener('load', () => {
             gerarTabelaEtapas();
 
             mapaObraSelecionada();
+
+            atualizarModelo3D();
         });
 
-    // ============================================================
-    // TABELA
-    // ============================================================
+    // TABELA ============================================================
 
     function gerarTabelaEtapas() {
+
 
         const obraNorm =
             normalizarNome(obra.value);
@@ -199,6 +195,7 @@ window.addEventListener('load', () => {
                     <tr>
                         <th>Data</th>
                         <th>Etapa</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
 
@@ -207,12 +204,28 @@ window.addEventListener('load', () => {
 
         itens.forEach(i => {
 
+            const corFundo =
+                i.status === 'REALIZADO'
+                    ? '#16eb5d'
+                    : '#ee0303';
+
             html += `
-                <tr>
-                    <td>${i.data || '-'}</td>
-                    <td>${i.etapa || '-'}</td>
-                </tr>
-            `;
+        <tr>
+            <td>${i.data || '-'}</td>
+            <td>${i.etapa || '-'}</td>
+            <td>
+                <span style="
+                    color:${corFundo};
+                    padding:4px 10px;
+                    border-radius:12px;
+                    font-size:12px;
+                    font-weight:600;
+                ">
+                    ${i.status || '-'}
+                </span>
+            </td>
+        </tr>
+    `;
         });
 
         html += `
@@ -254,6 +267,32 @@ window.addEventListener('load', () => {
             `;
 
             document.head.appendChild(style);
+        }
+    }
+
+    // ============================================================
+    // modelo 3D
+
+    function atualizarModelo3D() {
+
+        const obraSelecionada =
+            document.getElementById("obra").value;
+
+        const goiere =
+            document.getElementById("goiere");
+
+        const maringa =
+            document.getElementById("maringa");
+
+        goiere.style.display = "none";
+        maringa.style.display = "none";
+
+        if (obraSelecionada === "Goioerê") {
+            goiere.style.display = "block";
+        }
+
+        if (obraSelecionada === "Maringá") {
+            maringa.style.display = "block";
         }
     }
 
@@ -323,11 +362,9 @@ window.addEventListener('load', () => {
             document.getElementById('tempo_obra_escolhido');
 
         const tempoObra =
-            parseInt(
-                document.getElementById("tempo_obra").value
+            Math.max(
+                ...itens.map(i => Number(i.dia) || 0)
             );
-
-        // elTempoEscolhido.innerText = tempoObra;
 
         if (!datas.length) {
 
@@ -342,19 +379,9 @@ window.addEventListener('load', () => {
         const menor =
             new Date(Math.min(...datas));
 
-        // const termino =
-        //     new Date(menor);
-
-        // termino.setDate(
-        //     termino.getDate() + tempoObra
-        // );
 
         const termino =
-            new Date(menor);
-
-        termino.setDate(
-            termino.getDate() + tempoObra
-        );
+            new Date(Math.max(...datas));
 
         const diasUteis =
             contarDiasUteis(
@@ -363,7 +390,7 @@ window.addEventListener('load', () => {
             );
 
         elTempoEscolhido.innerText =
-            diasUteis;
+            tempoObra;
         function formatarData(d) {
 
             return `
@@ -391,31 +418,24 @@ window.addEventListener('load', () => {
                 ? diffDias
                 : 0;
 
-        const diasTrabalhados =
-            Math.max(
-                ...itens
-                    .map(i => i.dia)
-                    .filter(n => !isNaN(n))
-            );
+        const diasTrabalhados = Math.max(
+            0,
+            ...itens
+                .filter(i =>
+                    i.status &&
+                    i.status.toUpperCase() === 'REALIZADO'
+                )
+                .map(i => Number(i.dia) || 0)
+        );
 
         elTrabalhados.innerText =
-            diasTrabalhados > 0
-                ? diasTrabalhados
-                : 0;
+            diasTrabalhados;
     }
 
     // ============================================================
     // GRÁFICO LINHA
-    // ============================================================
 
     function graficoLinhaEvolucao() {
-
-        const diasTrabalhados =
-            parseInt(
-                document.getElementById(
-                    "qtd_dias_trabalhados"
-                ).innerText
-            ) || 0;
 
         const tempoObra =
             parseInt(
@@ -424,22 +444,52 @@ window.addEventListener('load', () => {
                 ).innerText
             ) || 0;
 
-        const progressoRealizado = [];
-        for (let d = 1; d <= diasTrabalhados; d++) {
-            progressoRealizado.push(d);
-        }
+        const obraNorm =
+            normalizarNome(obra.value);
 
-        const progressoMeta = [];
+        const itens =
+            movimentacoesBrutas
+                .filter(i =>
+                    normalizarNome(i.obra)
+                    === obraNorm
+                )
+                .sort((a, b) => a.dia - b.dia);
+
+        const eixoX =
+            Array.from(
+                { length: tempoObra },
+                (_, i) => i + 1
+            );
+
+        const realizado = [];
+        const pendente = [];
+
         for (let d = 1; d <= tempoObra; d++) {
-            progressoMeta.push(d);
+
+            const itemDia =
+                itens.find(i => i.dia === d);
+
+            if (
+                itemDia &&
+                itemDia.status &&
+                itemDia.status.toUpperCase() === "REALIZADO"
+            ) {
+
+                realizado.push(d);
+                pendente.push(null);
+
+            } else {
+
+                realizado.push(null);
+                pendente.push(d);
+            }
         }
 
-        const maxDias = Math.max(tempoObra, diasTrabalhados);
-        const eixoX = Array.from({ length: maxDias }, (_, i) => i + 1);
-
-        const corRotulo = getCorRotulo();
+        const corRotulo =
+            getCorRotulo();
 
         const optionLine = {
+
             tooltip: {
 
                 trigger: 'axis',
@@ -449,53 +499,52 @@ window.addEventListener('load', () => {
                     const diaAtual =
                         Number(params[0].axisValue);
 
-                    const obraNorm =
-                        normalizarNome(obra.value);
-
-                    const itens =
-                        movimentacoesBrutas
-                            .filter(i =>
-                                normalizarNome(i.obra)
-                                === obraNorm
-                            )
-                            .sort((a, b) => a.dia - b.dia);
-
-                    // pega SOMENTE as etapas do dia atual
                     const etapasDoDia =
                         itens.filter(i =>
                             i.dia === diaAtual
                         );
 
                     if (!etapasDoDia.length) {
+
                         return `
-                <div>
-                    Nenhuma etapa
-                </div>
-            `;
+                        <div>
+                            Nenhuma etapa
+                        </div>
+                    `;
                     }
 
-                    // cria lista com quebra de linha
                     const etapasHTML =
                         etapasDoDia
-                            .map(i => `• ${i.etapa}`)
+                            .map(i => {
+
+                                const cor =
+                                    i.status &&
+                                        i.status.toUpperCase() === "REALIZADO"
+                                        ? "#0853df"
+                                        : "#999999";
+
+                                return `
+                                <span style="color:${cor}">
+                                    • ${i.etapa}
+                                </span>
+                            `;
+                            })
                             .join('<br>');
 
                     return `
-            <div style="
-                padding:8px;
-                line-height:1.6;
-            ">
+                    <div style="
+                        padding:8px;
+                        line-height:1.6;
+                    ">
+                        <strong>
+                            Dia ${diaAtual}
+                        </strong>
 
-                <strong>
-                    Dia ${diaAtual}
-                </strong>
+                        <br><br>
 
-                <br><br>
-
-                ${etapasHTML}
-
-            </div>
-        `;
+                        ${etapasHTML}
+                    </div>
+                `;
                 }
             },
 
@@ -510,35 +559,74 @@ window.addEventListener('load', () => {
             xAxis: {
                 type: 'category',
                 data: eixoX,
-                axisLabel: { color: corRotulo }
+                axisLabel: {
+                    color: corRotulo
+                }
             },
 
             yAxis: {
                 show: false,
                 type: 'value',
-                axisLabel: { color: corRotulo }
+                max: tempoObra,
+                axisLabel: {
+                    color: corRotulo
+                }
             },
 
             series: [
+
                 {
-                    name: 'Dias Trabalhados',
+                    name: 'REALIZADO',
+
                     type: 'line',
-                    smooth: true,
+
+                    smooth: false,
+
                     symbol: 'none',
-                    lineStyle: { width: 2, color: '#0853df' },
-                    itemStyle: { color: '#0853df' },
-                    areaStyle: { color: '#0853df' },
-                    data: progressoRealizado
+
+                    connectNulls: false,
+
+                    lineStyle: {
+                        width: 2,
+                        color: '#16eb5d'
+                    },
+
+                    itemStyle: {
+                        color: '#16eb5d'
+                    },
+
+                    areaStyle: {
+                        color: '#16eb5d'
+                    },
+
+                    data: realizado
                 },
+
                 {
-                    name: 'Meta',
+                    name: 'PENDENTE',
+
                     type: 'line',
-                    smooth: true,
+
+                    smooth: false,
+
                     symbol: 'none',
-                    lineStyle: { width: 2, color: '#0853df' },
-                    itemStyle: { color: '#0853df' },
-                    areaStyle: { opacity: 0 },
-                    data: progressoMeta
+
+                    connectNulls: true,
+
+                    lineStyle: {
+                        width: 2,
+                        color: '#ee0303'
+                    },
+
+                    itemStyle: {
+                        color: '#ee0303'
+                    },
+
+                    areaStyle: {
+                        color: '#ee0303'
+                    },
+
+                    data: pendente
                 }
             ]
         };
@@ -546,18 +634,11 @@ window.addEventListener('load', () => {
         myLineChart.setOption(optionLine);
     }
 
+
     // ============================================================
     // VELOCÍMETRO
 
-
     function graficoVelocimetro() {
-
-        const diasTrabalhados =
-            parseInt(
-                document.getElementById(
-                    "qtd_dias_trabalhados"
-                ).innerText
-            ) || 0;
 
         const tempoObra =
             parseInt(
@@ -566,13 +647,29 @@ window.addEventListener('load', () => {
                 ).innerText
             ) || 0;
 
+        const obraNorm =
+            normalizarNome(obra.value);
+
+        const itens =
+            movimentacoesBrutas.filter(i =>
+                normalizarNome(i.obra)
+                === obraNorm
+            );
+
+
+        const diasRealizados = Math.max(
+            0,
+            ...itens
+                .filter(i =>
+                    i.status &&
+                    i.status.toUpperCase() === 'REALIZADO'
+                )
+                .map(i => Number(i.dia) || 0)
+        );
         const porcentagem =
             tempoObra > 0
-                ? Math.min(
-                    100,
-                    Math.round(
-                        (diasTrabalhados / tempoObra) * 100
-                    )
+                ? Math.round(
+                    (diasRealizados / tempoObra) * 100
                 )
                 : 0;
 
@@ -677,7 +774,6 @@ window.addEventListener('load', () => {
 
     // ============================================================
     // MAPA
-    // ============================================================
 
     const lightTiles = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -710,60 +806,72 @@ window.addEventListener('load', () => {
 
     const obrasMapa = {
 
-        "Obra 1": {
+        "Goioerê": {
 
             coords: [
-                -20.5938139,
-                -47.4684872
+                -24.1858549,
+                -53.012921
             ],
 
             popup: `
             <div style="text-align:center;">
 
                 <h3>
-                    Restinga - SP
+                    Goioerê - PR
                 </h3>
 
                 <img
-                    src="./img/house.png"
+                    src="./img/ailton.png"
                     style="
-                        width:3vw;
+                        width:5vw;
                         border-radius:10px;
                     "
                 >
 
                 <p>
-                    Obra 1
+                    Engenheiro: Ailton Barreto
+                </p>
+
+                <p>
+                    <a href="https://wa.me/5516994632838" target="_blank">
+                        WhatsApp
+                    </a>
                 </p>
 
             </div>
         `
         },
 
-        "Obra 2": {
+        "Maringá": {
 
             coords: [
-                -20.5349167,
-                -47.4533889
+                -23.4511371,
+                -51.8540074
             ],
 
             popup: `
             <div style="text-align:center;">
 
                 <h3>
-                    Franca - SP
+                    Maringá - PR
                 </h3>
 
                 <img
-                    src="./img/house.png"
+                    src="./img/cesar.png"
                     style="
-                        width:3vw;
+                        width:5vw;
                         border-radius:10px;
                     "
                 >
 
                 <p>
-                    Obra 2
+                    Engenheiro: César Pegorari
+                </p>
+
+                    <p>
+                    <a href="https://wa.me/5516994632838" target="_blank">
+                        WhatsApp
+                    </a>
                 </p>
 
             </div>
@@ -817,6 +925,7 @@ window.addEventListener('load', () => {
         marcadorAtual = L.marker(dados.coords)
             .addTo(map)
             .bindPopup(dados.popup)
+            .openPopup();
 
 
         map.flyTo(
@@ -830,20 +939,6 @@ window.addEventListener('load', () => {
 
     // ============================================================
     // EVENTOS
-    // ============================================================
-
-    document
-        .getElementById("tempo_obra")
-        .addEventListener("change", () => {
-
-            atualizarIndicadores();
-
-            graficoVelocimetro();
-
-            graficoLinhaEvolucao();
-
-            gerarTabelaEtapas();
-        });
 
     document
         .getElementById("obra")
@@ -858,6 +953,8 @@ window.addEventListener('load', () => {
             gerarTabelaEtapas();
 
             mapaObraSelecionada();
+
+            atualizarModelo3D();
         });
 
 });

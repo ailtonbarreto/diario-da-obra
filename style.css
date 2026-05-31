@@ -407,9 +407,10 @@ screen and (orientation: portrait) {
         padding: 0;
     }
 
-    .tabela-etapas th,
-    .tabela-etapas td {
+    #tabela_etapas th,
+    #tabela_etapas td {
         font-size: 12px;
         padding: 0.4rem;
+        height: 60vw;
     }
 }
