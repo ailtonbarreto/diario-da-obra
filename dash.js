@@ -444,6 +444,13 @@ window.addEventListener('load', () => {
                 ).innerText
             ) || 0;
 
+        const diasTrabalhados =
+            parseInt(
+                document.getElementById(
+                    "qtd_dias_trabalhados"
+                ).innerText
+            ) || 0;
+
         const obraNorm =
             normalizarNome(obra.value);
 
@@ -461,32 +468,19 @@ window.addEventListener('load', () => {
                 (_, i) => i + 1
             );
 
-        const realizado = [];
-        const pendente = [];
+        const rampa = [];
 
         for (let d = 1; d <= tempoObra; d++) {
-
-            const itemDia =
-                itens.find(i => i.dia === d);
-
-            if (
-                itemDia &&
-                itemDia.status &&
-                itemDia.status.toUpperCase() === "REALIZADO"
-            ) {
-
-                realizado.push(d);
-                pendente.push(null);
-
-            } else {
-
-                realizado.push(null);
-                pendente.push(d);
-            }
+            rampa.push(d);
         }
 
         const corRotulo =
             getCorRotulo();
+
+        const percentual =
+            tempoObra > 0
+                ? diasTrabalhados / tempoObra
+                : 0;
 
         const optionLine = {
 
@@ -505,12 +499,7 @@ window.addEventListener('load', () => {
                         );
 
                     if (!etapasDoDia.length) {
-
-                        return `
-                        <div>
-                            Nenhuma etapa
-                        </div>
-                    `;
+                        return '<div>Nenhuma etapa</div>';
                     }
 
                     const etapasHTML =
@@ -519,9 +508,9 @@ window.addEventListener('load', () => {
 
                                 const cor =
                                     i.status &&
-                                        i.status.toUpperCase() === "REALIZADO"
-                                        ? "#0853df"
-                                        : "#999999";
+                                        i.status.toUpperCase() === 'REALIZADO'
+                                        ? '#16eb5d'
+                                        : '#ee0303';
 
                                 return `
                                 <span style="color:${cor}">
@@ -536,12 +525,8 @@ window.addEventListener('load', () => {
                         padding:8px;
                         line-height:1.6;
                     ">
-                        <strong>
-                            Dia ${diaAtual}
-                        </strong>
-
+                        <strong>Dia ${diaAtual}</strong>
                         <br><br>
-
                         ${etapasHTML}
                     </div>
                 `;
@@ -567,66 +552,50 @@ window.addEventListener('load', () => {
             yAxis: {
                 show: false,
                 type: 'value',
-                max: tempoObra,
-                axisLabel: {
-                    color: corRotulo
-                }
+                max: tempoObra
             },
 
             series: [
-
                 {
-                    name: 'REALIZADO',
-
                     type: 'line',
 
                     smooth: false,
 
                     symbol: 'none',
 
-                    connectNulls: false,
+                    data: rampa,
 
                     lineStyle: {
                         width: 2,
-                        color: '#16eb5d'
-                    },
-
-                    itemStyle: {
-                        color: '#16eb5d'
+                        color: 'transparent'
                     },
 
                     areaStyle: {
-                        color: '#16eb5d'
-                    },
-
-                    data: realizado
-                },
-
-                {
-                    name: 'PENDENTE',
-
-                    type: 'line',
-
-                    smooth: false,
-
-                    symbol: 'none',
-
-                    connectNulls: true,
-
-                    lineStyle: {
-                        width: 2,
-                        color: '#ee0303'
-                    },
-
-                    itemStyle: {
-                        color: '#ee0303'
-                    },
-
-                    areaStyle: {
-                        color: '#ee0303'
-                    },
-
-                    data: pendente
+                        color: new echarts.graphic.LinearGradient(
+                            0,
+                            0,
+                            1,
+                            0,
+                            [
+                                {
+                                    offset: 0,
+                                    color: '#16eb5d'
+                                },
+                                {
+                                    offset: percentual,
+                                    color: '#16eb5d'
+                                },
+                                {
+                                    offset: percentual,
+                                    color: '#ee0303'
+                                },
+                                {
+                                    offset: 1,
+                                    color: '#ee0303'
+                                }
+                            ]
+                        )
+                    }
                 }
             ]
         };
