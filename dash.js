@@ -138,12 +138,48 @@ window.addEventListener('load', () => {
 
                     data: (row['data'] || '').trim(),
 
-                    dia: parseInt(row['dia'] || 0) || 0,
-
                     etapa: (row['etapa'] || '').trim(),
 
                     status: (row['status'] || '').trim().toUpperCase()
                 }));
+
+
+            // GERA O DIA DA OBRA AUTOMATICAMENTE
+            const obrasAgrupadas = {};
+
+            movimentacoesBrutas.forEach(item => {
+
+                if (!obrasAgrupadas[item.obra]) {
+                    obrasAgrupadas[item.obra] = [];
+                }
+
+                obrasAgrupadas[item.obra].push(item);
+            });
+
+            Object.values(obrasAgrupadas).forEach(itensObra => {
+
+                itensObra.sort((a, b) =>
+                    parseDateFlexible(a.data) -
+                    parseDateFlexible(b.data)
+                );
+
+                let diaObra = 0;
+                let ultimaData = '';
+
+                itensObra.forEach(item => {
+
+                    if (item.data !== ultimaData) {
+
+                        diaObra++;
+
+                        ultimaData = item.data;
+                    }
+
+                    item.dia = diaObra;
+                });
+            });
+
+
             const obrasUnicas = [
                 ...new Set(
                     movimentacoesBrutas
@@ -154,10 +190,10 @@ window.addEventListener('load', () => {
 
             obra.innerHTML =
                 obrasUnicas.map(o => `
-                    <option value="${o}">
-                        ${o}
-                    </option>
-                `).join('');
+                <option value="${o}">
+                    ${o}
+                </option>
+            `).join('');
 
             atualizarIndicadores();
 
@@ -444,21 +480,13 @@ window.addEventListener('load', () => {
                 ).innerText
             ) || 0;
 
-        const diasTrabalhados =
-            parseInt(
-                document.getElementById(
-                    "qtd_dias_trabalhados"
-                ).innerText
-            ) || 0;
-
         const obraNorm =
             normalizarNome(obra.value);
 
         const itens =
             movimentacoesBrutas
                 .filter(i =>
-                    normalizarNome(i.obra)
-                    === obraNorm
+                    normalizarNome(i.obra) === obraNorm
                 )
                 .sort((a, b) => a.dia - b.dia);
 
@@ -468,19 +496,34 @@ window.addEventListener('load', () => {
                 (_, i) => i + 1
             );
 
-        const rampa = [];
+        const realizado = [];
+        const pendente = [];
 
         for (let d = 1; d <= tempoObra; d++) {
-            rampa.push(d);
+
+            const etapasDia =
+                itens.filter(i => i.dia === d);
+
+            const possuiRealizado =
+                etapasDia.some(i =>
+                    i.status &&
+                    i.status.toUpperCase() === "REALIZADO"
+                );
+
+            if (possuiRealizado) {
+
+                realizado.push(d);
+                pendente.push(null);
+
+            } else {
+
+                realizado.push(null);
+                pendente.push(d);
+            }
         }
 
         const corRotulo =
             getCorRotulo();
-
-        const percentual =
-            tempoObra > 0
-                ? diasTrabalhados / tempoObra
-                : 0;
 
         const optionLine = {
 
@@ -499,7 +542,12 @@ window.addEventListener('load', () => {
                         );
 
                     if (!etapasDoDia.length) {
-                        return '<div>Nenhuma etapa</div>';
+
+                        return `
+                        <div>
+                            Nenhuma etapa
+                        </div>
+                    `;
                     }
 
                     const etapasHTML =
@@ -508,24 +556,26 @@ window.addEventListener('load', () => {
 
                                 const cor =
                                     i.status &&
-                                        i.status.toUpperCase() === 'REALIZADO'
-                                        ? '#16eb5d'
-                                        : '#ee0303';
+                                        i.status.toUpperCase() === "REALIZADO"
+                                        ? "#16eb5d"
+                                        : "#ee0303";
 
                                 return `
                                 <span style="color:${cor}">
-                                    • ${i.etapa}
+                                    ● ${i.etapa}
                                 </span>
                             `;
                             })
-                            .join('<br>');
+                            .join("<br>");
 
                     return `
                     <div style="
                         padding:8px;
                         line-height:1.6;
                     ">
-                        <strong>Dia ${diaAtual}</strong>
+                        <strong>
+                            Dia ${diaAtual}
+                        </strong>
                         <br><br>
                         ${etapasHTML}
                     </div>
@@ -556,53 +606,65 @@ window.addEventListener('load', () => {
             },
 
             series: [
+
                 {
+                    name: 'REALIZADO',
+
                     type: 'line',
 
                     smooth: false,
 
                     symbol: 'none',
 
-                    data: rampa,
+                    connectNulls: false,
 
                     lineStyle: {
                         width: 2,
-                        color: 'transparent'
+                        color: '#16eb5d'
+                    },
+
+                    itemStyle: {
+                        color: '#16eb5d'
                     },
 
                     areaStyle: {
-                        color: new echarts.graphic.LinearGradient(
-                            0,
-                            0,
-                            1,
-                            0,
-                            [
-                                {
-                                    offset: 0,
-                                    color: '#16eb5d'
-                                },
-                                {
-                                    offset: percentual,
-                                    color: '#16eb5d'
-                                },
-                                {
-                                    offset: percentual,
-                                    color: '#ee0303'
-                                },
-                                {
-                                    offset: 1,
-                                    color: '#ee0303'
-                                }
-                            ]
-                        )
-                    }
+                        color: '#16eb5d'
+                    },
+
+                    data: realizado
+                },
+
+                {
+                    name: 'PENDENTE',
+
+                    type: 'line',
+
+                    smooth: false,
+
+                    symbol: 'none',
+
+                    connectNulls: false,
+
+                    lineStyle: {
+                        width: 2,
+                        color: '#ee0303'
+                    },
+
+                    itemStyle: {
+                        color: '#ee0303'
+                    },
+
+                    areaStyle: {
+                        color: '#ee0303'
+                    },
+
+                    data: pendente
                 }
             ]
         };
 
         myLineChart.setOption(optionLine);
     }
-
 
     // ============================================================
     // VELOCÍMETRO
