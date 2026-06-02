@@ -306,8 +306,7 @@ window.addEventListener('load', () => {
         }
     }
 
-    // ============================================================
-    // modelo 3D
+    // modelo 3D====================================================
 
     function atualizarModelo3D() {
 
@@ -332,10 +331,8 @@ window.addEventListener('load', () => {
         }
     }
 
-    // ============================================================
-    // INDICADORES
-
-
+    // INDICADORES=====================================================
+ 
     function contarDiasUteis(dataInicio, dataFim) {
 
         let diasUteis = 0;
@@ -468,8 +465,7 @@ window.addEventListener('load', () => {
             diasTrabalhados;
     }
 
-    // ============================================================
-    // GRÁFICO LINHA
+    // GRAFICO LINHA===================================================
 
     function graficoLinhaEvolucao() {
 
@@ -666,8 +662,7 @@ window.addEventListener('load', () => {
         myLineChart.setOption(optionLine);
     }
 
-    // ============================================================
-    // VELOCÍMETRO
+    // VELOCIMETRO=================================================
 
     function graficoVelocimetro() {
 
