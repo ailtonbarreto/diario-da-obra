@@ -332,7 +332,7 @@ window.addEventListener('load', () => {
     }
 
     // INDICADORES=====================================================
- 
+
     function contarDiasUteis(dataInicio, dataFim) {
 
         let diasUteis = 0;
@@ -466,6 +466,7 @@ window.addEventListener('load', () => {
     }
 
     // GRAFICO LINHA===================================================
+
 
     function graficoLinhaEvolucao() {
 
@@ -606,24 +607,11 @@ window.addEventListener('load', () => {
                 {
                     name: 'REALIZADO',
 
-                    type: 'line',
+                    type: 'bar',
 
-                    smooth: false,
-
-                    symbol: 'none',
-
-                    connectNulls: false,
-
-                    lineStyle: {
-                        width: 2,
-                        color: '#16eb5d'
-                    },
+                    barGap: '-100%',
 
                     itemStyle: {
-                        color: '#16eb5d'
-                    },
-
-                    areaStyle: {
                         color: '#16eb5d'
                     },
 
@@ -633,24 +621,11 @@ window.addEventListener('load', () => {
                 {
                     name: 'PENDENTE',
 
-                    type: 'line',
+                    type: 'bar',
 
-                    smooth: false,
-
-                    symbol: 'none',
-
-                    connectNulls: false,
-
-                    lineStyle: {
-                        width: 2,
-                        color: '#ee0303'
-                    },
+                    barGap: '-100%',
 
                     itemStyle: {
-                        color: '#ee0303'
-                    },
-
-                    areaStyle: {
                         color: '#ee0303'
                     },
 
