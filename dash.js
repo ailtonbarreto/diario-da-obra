@@ -199,7 +199,7 @@ window.addEventListener('load', () => {
 
             graficoVelocimetro();
 
-            graficoLinhaEvolucao();
+            graficoBarraEvolucao();
 
             gerarTabelaEtapas();
 
@@ -230,6 +230,7 @@ window.addEventListener('load', () => {
                 <thead>
                     <tr>
                         <th>Data</th>
+                        <th>Dia</th>
                         <th>Etapa</th>
                         <th>Status</th>
                     </tr>
@@ -248,7 +249,9 @@ window.addEventListener('load', () => {
             html += `
         <tr>
             <td>${i.data || '-'}</td>
+            <td>${i.dia || '-'}</td>
             <td>${i.etapa || '-'}</td>
+
             <td>
                 <span style="
                     color:${corFundo};
@@ -313,17 +316,17 @@ window.addEventListener('load', () => {
         const obraSelecionada =
             document.getElementById("obra").value;
 
-        const goiere =
-            document.getElementById("goiere");
+        const goioere =
+            document.getElementById("goioere");
 
         const maringa =
             document.getElementById("maringa");
 
-        goiere.style.display = "none";
+        goioere.style.display = "none";
         maringa.style.display = "none";
 
         if (obraSelecionada === "Goioerê") {
-            goiere.style.display = "block";
+            goioere.style.display = "block";
         }
 
         if (obraSelecionada === "Maringá") {
@@ -468,7 +471,7 @@ window.addEventListener('load', () => {
     // GRAFICO LINHA===================================================
 
 
-    function graficoLinhaEvolucao() {
+    function graficoBarraEvolucao() {
 
         const tempoObra =
             parseInt(
@@ -949,7 +952,7 @@ window.addEventListener('load', () => {
 
             graficoVelocimetro();
 
-            graficoLinhaEvolucao();
+            graficoBarraEvolucao();
 
             gerarTabelaEtapas();
 
