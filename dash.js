@@ -277,36 +277,6 @@ window.addEventListener('load', () => {
 
         tabela.innerHTML = html;
 
-        tabela.style.maxHeight = "14vw";
-        tabela.style.overflowY = "auto";
-        tabela.style.overflowX = "hidden";
-
-        if (
-            !document.getElementById(
-                "estilo-scroll-tabela-etapas"
-            )
-        ) {
-
-            const style =
-                document.createElement("style");
-
-            style.id =
-                "estilo-scroll-tabela-etapas";
-
-            style.innerHTML = `
-
-                #tabela_etapas::-webkit-scrollbar {
-                    width: 6px;
-                }
-
-                #tabela_etapas::-webkit-scrollbar-thumb {
-                    background: #0853df;
-                    border-radius: 10px;
-                }
-            `;
-
-            document.head.appendChild(style);
-        }
     }
 
     // modelo 3D====================================================
