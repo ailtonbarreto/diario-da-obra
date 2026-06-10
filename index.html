@@ -4,244 +4,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
-    <script async src="dash.js"></script>
-    <title>Diario da Obra</title>
+    <link rel="shortcut icon" href="img.png" type="image/x-icon">
+    <title>Dashboard Financeiro</title>
 </head>
 
-<body class="dark-mode-variables">
-
-
-    <div class="container">
-
-
-        <main>
-
-            <div class="header">
-
-                <div class="user">
-
-                    <img src="./img/logo.png" alt="">
-                    <h1>Olá, Ailton</h1>
-
-                </div>
-
-
-                <div class="datas">
-
-
-
-                    <div>
-
-
-                        <label>Obra: </label>
-
-                        <select id="obra">
-
-                            <option value="-">-</option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="dark-mode">
-
-                        <span class="material-symbols-outlined active">
-                            brightness_medium
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="analyse">
-
-                <div class="card_kpi">
-
-                    <div class="kpi_header">
-
-                        <h3>Inicio Da Obra</h3>
-
-                        <span class="material-symbols-outlined" id="inicio">
-                            date_range
-                        </span>
-
-
-                    </div>
-
-
-                    <h1 id="data_inicio">-</h1>
-
-
-
-                </div>
-
-
-                <div class="card_kpi">
-
-                    <div class="kpi_header">
-
-                        <h3>Tempo De Obra</h3>
-
-                        <span class="material-symbols-outlined" id="tempo">calendar_clock</span>
-
-
-                    </div>
-
-                    <h1 id="tempo_obra_escolhido">-</h1>
-
-                </div>
-
-
-                <div class="card_kpi">
-
-                    <div class="kpi_header">
-
-                        <h3>Qtd Dias Corridos</h3>
-
-                        <span class="material-symbols-outlined">alarm</span>
-
-                    </div>
-
-
-                    <h1 id="qtd_dias_corridos">-</h1>
-
-                </div>
-
-                <div class="card_kpi">
-
-
-                    <div class="kpi_header">
-
-                        <h3>Qtd Dias Trabalhados</h3>
-
-                        <span class="material-symbols-outlined" id="construcao">construction</span>
-
-                    </div>
-
-
-                    <h1 id="qtd_dias_trabalhados">-</h1>
-
-                </div>
-
-                <div class="card_kpi">
-
-                    <div class="kpi_header">
-
-                        <h3>Previsão Término</h3>
-
-                        <span class="material-symbols-outlined" id="termino_">calendar_check</span>
-
-
-                    </div>
-
-
-                    <h1 id="termino">-</h1>
-
-                </div>
-
-            </div>
-
-
-            <div class="charts-container">
-
-                <div class="first-section">
-
-                    <div class="chart_card">
-
-                        <h3>Prazo Da Obra</h3>
-
-                        <div id="gauge" style="width:100%; height:150%;"></div>
-
-                    </div>
-
-                    <div class="chart_card">
-
-                        <div id="map"></div>
-
-                    </div>
-
-
-                </div>
-
-                <div class="second-section">
-
-                    <div class="chart_card">
-
-                        <h3>Evolução Da Obra</h3>
-
-                        <div id="line" style="width:100%;height:96%;"></div>
-
-                    </div>
-
-                    <div class="chart_card">
-
-                        <div id="tabela_etapas"></div>
-
-                    </div>
-
-                </div>
-
-
-                <div>
-
-
-                    <div class="chart_card" style="height:100%; width:100%;">
-
-                        <iframe id="goioere" title="Goioerê" frameborder="0" allowfullscreen mozallowfullscreen="false"
-                         src="https://sketchfab.com/models/9beba1de353d4abb976c0ae1f4211893/embed?autostart=1&camera=0&transparent=1"
-                            style="height: 100%; width: 100%;display:none;"> </iframe> 
-
-                        <iframe id="maringa" title="Maringá" frameborder="0" allowfullscreen mozallowfullscreen="false"
-                            webkitallowfullscreen="false" allow="autoplay; fullscreen; xr-spatial-tracking"
-                            xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share
-                            src="https://sketchfab.com/3d-models/apartment-floor-plan-f26d324342a04991878261f334c6349a/embed"
-                            style="height: 100%; width: 100%;display:none;"> </iframe>
-
-                    </div>
-
-
-
-
-
-                </div>
-
-
-
-            </div>
-
-        </main>
+<style>
+    :root {
+        --bg: #181a1e;
+        --cor-texto: #ffffff;
+        --cor-container: #202528;
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        height: 100vh;
+        width: 100vw;
+        color: var(--bg);
+        overflow-y: hidden;
+        background-color: var(--cor-container);
+    }
+
+    #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(61, 61, 61, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    #spinner {
+        border: 4px solid #000000;
+        border-top: 4px solid var(--cor-texto);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    #menu-icon {
+        cursor: pointer;
+        font-size: 40px;
+        margin-left: -1vw;
+    }
+
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        position: absolute;
+        z-index: 1;
+        background-color: var(--bg);
+        width: 100vw;
+        height: 100vh;
+    }
+
+    form {
+        color: var(--bg);
+        padding: 3vw;
+        background-color: var(--cor-container);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 4px;
+        width: 30vw;
+        height: auto;
+        gap: 1.2vw;
+        box-shadow: 1rem 1rem 1rem #000000;
+    }
+
+    input {
+        outline: none;
+        padding: 0.5vw;
+        width: 100%;
+        color: #000;
+        border-radius: 3px;
+        border: none;
+        background-color: var(--cor-texto);
+    }
+
+    .campos {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.5vw;
+        width: 60%;
+    }
+
+    label {
+        font-weight: bold;
+        color: var(--cor-texto);
+    }
+
+    button {
+        color: var(--cor-container);
+        border: none;
+        background-color: var(--cor-texto);
+        padding: 0.5vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 60%;
+        border-radius: 3px;
+        margin-bottom: 1vw;
+        cursor: pointer;
+    }
+
+    .message {
+        color: red;
+        font-weight: bold;
+        height: 3vw;
+
+    }
+
+    .msg {
+        display: flex;
+        justify-content: space-between;
+        width: 100vw;
+        height: 2.5vw;
+        padding: 0vw 2vw;
+        align-items: center;
+
+    }
+
+    img {
+        width: 14vw;
+    }
+
+
+    /* ---------------------------------------------------- */
+
+    @media screen and (max-width: 968px),
+    screen and (orientation: portrait) {
+
+
+        .form {
+            justify-content: space-between;
+            height: 70vh;
+            width: 100vw;
+            text-align: center;
+            border: none;
+            padding: 2vh;
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        img {
+            width: 50vw;
+        }
+
+        .campos {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            width: 60%;
+        }
+
+        input {
+            outline: none;
+            padding: 3vw;
+            height: 8vw;
+            width: auto;
+        }
+
+        .form button {
+            padding: 3vw;
+            height: 8vw;
+            width: 60%;
+            margin-top: 2vw;
+        }
+
+
+        label {
+            font-weight: bold;
+            font-size: 4vw;
+            margin: 4vw 0vw;
+        }
+
+
+
+
+        .msg {
+            display: flex;
+            justify-content: space-between;
+            width: 100vw;
+            height: 10vw;
+            padding: 0vw 2vw;
+        }
+
+
+        #logged-message {
+            text-transform: capitalize;
+            display: flex;
+            font-size: 5vw;
+            text-align: center;
+        }
+
+        .message {
+            margin-bottom: 50vw;
+        }
+
+    }
+</style>
+
+<body>
+
+    <div id="loading">
+
+        <div class="spinner" id="spinner"></div>
 
     </div>
 
+
+    <div id="container-login" class="container">
+
+        <form id="loginForm" class="form">
+
+            <img src="./logo.png">
+
+            <div class="campos">
+
+
+                <label for="password">Senha</label>
+
+                <input id="password" type="password" placeholder="senha: 123">
+
+            </div>
+            <button type="submit">Entrar</button>
+
+            <p id="alert" class="message"></p>
+
+        </form>
+
+    </div>
+
+    <div class="screen-logged">
+
+        <iframe src="" frameborder="0" id="tela" style="width: 100vw; height:100vh"></iframe>
+
+
+    </div>
+
+    <script src="script.js" defer></script>
+
+
 </body>
 
-<script>
-
-    const sideMenu = document.querySelector('aside');
-    const menuBtn = document.getElementById('menu-btn');
-    const closeBtn = document.getElementById('close-btn');
-
-    const darkMode = document.querySelector('.dark-mode');
-
-
-    darkMode.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode-variables');
-        darkMode.querySelector('span:nth-child(1)').classList.toggle('active');
-    })
-
-
-
-</script>
 
 </html>
