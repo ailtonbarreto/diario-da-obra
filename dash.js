@@ -614,38 +614,79 @@ window.addEventListener('load', () => {
 
     function graficoVelocimetro() {
 
-        const tempoObra =
-            parseInt(
-                document.getElementById(
-                    "tempo_obra_escolhido"
-                ).innerText
-            ) || 0;
-
         const obraNorm =
             normalizarNome(obra.value);
 
         const itens =
             movimentacoesBrutas.filter(i =>
-                normalizarNome(i.obra)
-                === obraNorm
+                normalizarNome(i.obra) === obraNorm
             );
 
+        if (!itens.length) return;
 
-        const diasRealizados = Math.max(
-            0,
-            ...itens
-                .filter(i =>
-                    i.status &&
-                    i.status.toUpperCase() === 'REALIZADO'
+        // Converte dd/mm/yyyy para Date
+        const datas = itens
+            .map(i => {
+
+                if (!i.data) return null;
+
+                const partes = i.data.split('/');
+
+                if (partes.length !== 3) return null;
+
+                const dia = parseInt(partes[0]);
+                const mes = parseInt(partes[1]) - 1;
+                const ano = parseInt(partes[2]);
+
+                return new Date(ano, mes, dia);
+
+            })
+            .filter(d =>
+                d instanceof Date &&
+                !isNaN(d.getTime())
+            );
+
+        if (!datas.length) return;
+
+        const dataInicio =
+            new Date(
+                Math.min(
+                    ...datas.map(d => d.getTime())
                 )
-                .map(i => Number(i.dia) || 0)
-        );
-        const porcentagem =
-            tempoObra > 0
-                ? Math.round(
-                    (diasRealizados / tempoObra) * 100
+            );
+
+        const dataFim =
+            new Date(
+                Math.max(
+                    ...datas.map(d => d.getTime())
                 )
-                : 0;
+            );
+
+        const hoje = new Date();
+
+        const prazoTotal =
+            dataFim.getTime() -
+            dataInicio.getTime();
+
+        const prazoDecorrido =
+            hoje.getTime() -
+            dataInicio.getTime();
+
+        let porcentagem = 0;
+
+        if (prazoTotal > 0) {
+
+            porcentagem =
+                Math.round(
+                    (prazoDecorrido / prazoTotal) * 100
+                );
+
+            porcentagem =
+                Math.max(
+                    0,
+                    Math.min(100, porcentagem)
+                );
+        }
 
         const corRotulo =
             getCorRotulo();
@@ -744,7 +785,142 @@ window.addEventListener('load', () => {
                 }]
             }]
         });
+
     }
+
+    // function graficoVelocimetro() {
+
+    //     const tempoObra =
+    //         parseInt(
+    //             document.getElementById(
+    //                 "tempo_obra_escolhido"
+    //             ).innerText
+    //         ) || 0;
+
+    //     const obraNorm =
+    //         normalizarNome(obra.value);
+
+    //     const itens =
+    //         movimentacoesBrutas.filter(i =>
+    //             normalizarNome(i.obra)
+    //             === obraNorm
+    //         );
+
+
+    //     const diasRealizados = Math.max(
+    //         0,
+    //         ...itens
+    //             .filter(i =>
+    //                 i.status &&
+    //                 i.status.toUpperCase() === 'REALIZADO'
+    //             )
+    //             .map(i => Number(i.dia) || 0)
+    //     );
+    //     const porcentagem =
+    //         tempoObra > 0
+    //             ? Math.round(
+    //                 (diasRealizados / tempoObra) * 100
+    //             )
+    //             : 0;
+
+    //     const corRotulo =
+    //         getCorRotulo();
+
+    //     let corProgresso = '#cc2e06';
+
+    //     if (porcentagem > 66) {
+    //         corProgresso = '#00c851';
+    //     }
+    //     else if (porcentagem > 33) {
+    //         corProgresso = '#088af5';
+    //     }
+
+    //     myChart.setOption({
+
+    //         series: [{
+
+    //             type: 'gauge',
+
+    //             startAngle: 180,
+
+    //             endAngle: 0,
+
+    //             min: 0,
+
+    //             max: 100,
+
+    //             progress: {
+
+    //                 show: true,
+
+    //                 width: 18,
+
+    //                 itemStyle: {
+    //                     color: corProgresso
+    //                 }
+    //             },
+
+    //             axisLine: {
+    //                 lineStyle: {
+    //                     width: 18
+    //                 }
+    //             },
+
+    //             axisTick: {
+    //                 show: false
+    //             },
+
+    //             splitLine: {
+    //                 show: false
+    //             },
+
+    //             axisLabel: {
+
+    //                 distance: 5,
+
+    //                 color: corRotulo,
+
+    //                 fontSize: 10
+    //             },
+
+    //             pointer: {
+
+    //                 show: true,
+
+    //                 length: '60%',
+
+    //                 width: 6,
+
+    //                 itemStyle: {
+    //                     color: corProgresso
+    //                 }
+    //             },
+
+    //             detail: {
+
+    //                 show: true,
+
+    //                 valueAnimation: true,
+
+    //                 formatter: '{value}%',
+
+    //                 color: corRotulo,
+
+    //                 fontSize: 16,
+
+    //                 offsetCenter: [0, '18%']
+    //             },
+
+    //             title: {
+    //                 show: false
+    //             },
+
+    //             data: [{
+    //                 value: porcentagem
+    //             }]
+    //         }]
+    //     });
+    // }
 
     // ============================================================
     // MAPA
