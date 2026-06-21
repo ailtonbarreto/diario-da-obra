@@ -427,7 +427,7 @@ window.addEventListener('load', () => {
 
         const diffDias = Math.ceil(
             (maior - menor) / 86400000
-        ) + 1;
+        );
 
         elCorridos.innerText =
             diffDias >= 0
