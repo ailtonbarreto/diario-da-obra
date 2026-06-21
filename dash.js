@@ -788,139 +788,6 @@ window.addEventListener('load', () => {
 
     }
 
-    // function graficoVelocimetro() {
-
-    //     const tempoObra =
-    //         parseInt(
-    //             document.getElementById(
-    //                 "tempo_obra_escolhido"
-    //             ).innerText
-    //         ) || 0;
-
-    //     const obraNorm =
-    //         normalizarNome(obra.value);
-
-    //     const itens =
-    //         movimentacoesBrutas.filter(i =>
-    //             normalizarNome(i.obra)
-    //             === obraNorm
-    //         );
-
-
-    //     const diasRealizados = Math.max(
-    //         0,
-    //         ...itens
-    //             .filter(i =>
-    //                 i.status &&
-    //                 i.status.toUpperCase() === 'REALIZADO'
-    //             )
-    //             .map(i => Number(i.dia) || 0)
-    //     );
-    //     const porcentagem =
-    //         tempoObra > 0
-    //             ? Math.round(
-    //                 (diasRealizados / tempoObra) * 100
-    //             )
-    //             : 0;
-
-    //     const corRotulo =
-    //         getCorRotulo();
-
-    //     let corProgresso = '#cc2e06';
-
-    //     if (porcentagem > 66) {
-    //         corProgresso = '#00c851';
-    //     }
-    //     else if (porcentagem > 33) {
-    //         corProgresso = '#088af5';
-    //     }
-
-    //     myChart.setOption({
-
-    //         series: [{
-
-    //             type: 'gauge',
-
-    //             startAngle: 180,
-
-    //             endAngle: 0,
-
-    //             min: 0,
-
-    //             max: 100,
-
-    //             progress: {
-
-    //                 show: true,
-
-    //                 width: 18,
-
-    //                 itemStyle: {
-    //                     color: corProgresso
-    //                 }
-    //             },
-
-    //             axisLine: {
-    //                 lineStyle: {
-    //                     width: 18
-    //                 }
-    //             },
-
-    //             axisTick: {
-    //                 show: false
-    //             },
-
-    //             splitLine: {
-    //                 show: false
-    //             },
-
-    //             axisLabel: {
-
-    //                 distance: 5,
-
-    //                 color: corRotulo,
-
-    //                 fontSize: 10
-    //             },
-
-    //             pointer: {
-
-    //                 show: true,
-
-    //                 length: '60%',
-
-    //                 width: 6,
-
-    //                 itemStyle: {
-    //                     color: corProgresso
-    //                 }
-    //             },
-
-    //             detail: {
-
-    //                 show: true,
-
-    //                 valueAnimation: true,
-
-    //                 formatter: '{value}%',
-
-    //                 color: corRotulo,
-
-    //                 fontSize: 16,
-
-    //                 offsetCenter: [0, '18%']
-    //             },
-
-    //             title: {
-    //                 show: false
-    //             },
-
-    //             data: [{
-    //                 value: porcentagem
-    //             }]
-    //         }]
-    //     });
-    // }
 
     // ============================================================
     // MAPA
@@ -973,7 +840,7 @@ window.addEventListener('load', () => {
                 <img
                     src="./img/ailton.png"
                     style="
-                        width:5vw;
+                        width:80%;
                         border-radius:10px;
                     "
                 >
@@ -1009,7 +876,7 @@ window.addEventListener('load', () => {
                 <img
                     src="./img/cesar.png"
                     style="
-                        width:5vw;
+                        width:80%;
                         border-radius:10px;
                     "
                 >
@@ -1074,8 +941,8 @@ window.addEventListener('load', () => {
 
         marcadorAtual = L.marker(dados.coords)
             .addTo(map)
-            .bindPopup(dados.popup)
-            .openPopup();
+            .bindPopup(dados.popup);
+            // .openPopup();
 
 
         map.flyTo(
