@@ -177,6 +177,16 @@ window.addEventListener('load', () => {
 
                     item.dia = diaObra;
                 });
+
+                console.log(
+                    itensObra[0].obra,
+                    'Máximo dia:',
+                    Math.max(...itensObra.map(i => i.dia))
+                );
+
+                console.log(
+                    [...new Set(itensObra.map(i => i.data))]
+                );
             });
 
 
@@ -417,7 +427,7 @@ window.addEventListener('load', () => {
 
         const diffDias = Math.ceil(
             (maior - menor) / 86400000
-        );
+        ) + 1;
 
         elCorridos.innerText =
             diffDias >= 0
@@ -664,6 +674,9 @@ window.addEventListener('load', () => {
 
         const hoje = new Date();
 
+        // Zera as horas para comparação correta
+        hoje.setHours(0, 0, 0, 0);
+
         const prazoTotal =
             dataFim.getTime() -
             dataInicio.getTime();
@@ -672,32 +685,50 @@ window.addEventListener('load', () => {
             hoje.getTime() -
             dataInicio.getTime();
 
-        let porcentagem = 0;
+        let porcentagemCronograma = 0;
 
         if (prazoTotal > 0) {
 
-            porcentagem =
+            porcentagemCronograma =
                 Math.round(
                     (prazoDecorrido / prazoTotal) * 100
                 );
 
-            porcentagem =
+            porcentagemCronograma =
                 Math.max(
                     0,
-                    Math.min(100, porcentagem)
+                    Math.min(100, porcentagemCronograma)
                 );
         }
 
+        // Conta apenas etapas até hoje
+        const etapasAteHoje = itens.filter(i => {
+
+            if (!i.data) return false;
+
+            const dataParsed = parseDateFlexible(i.data);
+
+            return dataParsed && dataParsed <= hoje;
+        });
+
+        const totalAteHoje = etapasAteHoje.length;
+        const etapasRealizadasAteHoje = etapasAteHoje.filter(i =>
+            i.status &&
+            i.status.toUpperCase() === 'REALIZADO'
+        ).length;
+
+        const porcentagemRealizadoAteHoje = totalAteHoje > 0
+            ? Math.round((etapasRealizadasAteHoje / totalAteHoje) * 100)
+            : 0;
+
+        // Determina cor: verde se realizado >= esperado, vermelho se abaixo
         const corRotulo =
             getCorRotulo();
 
-        let corProgresso = '#cc2e06';
+        let corProgresso = '#ee0303'; // vermelho (abaixo do prazo)
 
-        if (porcentagem > 66) {
-            corProgresso = '#00c851';
-        }
-        else if (porcentagem > 33) {
-            corProgresso = '#088af5';
+        if (porcentagemRealizadoAteHoje >= porcentagemCronograma) {
+            corProgresso = '#00c851'; // verde (no prazo ou adiantado)
         }
 
         myChart.setOption({
@@ -781,7 +812,7 @@ window.addEventListener('load', () => {
                 },
 
                 data: [{
-                    value: porcentagem
+                    value: porcentagemCronograma
                 }]
             }]
         });
@@ -942,7 +973,7 @@ window.addEventListener('load', () => {
         marcadorAtual = L.marker(dados.coords)
             .addTo(map)
             .bindPopup(dados.popup);
-            // .openPopup();
+        // .openPopup();
 
 
         map.flyTo(
