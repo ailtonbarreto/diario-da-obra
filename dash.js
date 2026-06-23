@@ -725,10 +725,11 @@ window.addEventListener('load', () => {
         const corRotulo =
             getCorRotulo();
 
-        let corProgresso = '#ee0303'; // vermelho (abaixo do prazo)
+        let corProgresso = '#ee0303'; // vermelho por padrão
 
-        if (porcentagemRealizadoAteHoje >= porcentagemCronograma) {
-            corProgresso = '#00c851'; // verde (no prazo ou adiantado)
+        // Se tudo que deveria ter sido feito até hoje está 100% realizado → verde
+        if (porcentagemRealizadoAteHoje === 100) {
+            corProgresso = '#00c851';
         }
 
         myChart.setOption({
@@ -818,7 +819,6 @@ window.addEventListener('load', () => {
         });
 
     }
-
 
     // ============================================================
     // MAPA
