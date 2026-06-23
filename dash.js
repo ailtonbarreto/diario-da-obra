@@ -624,24 +624,20 @@ window.addEventListener('load', () => {
 
     function graficoVelocimetro() {
 
-        const obraNorm =
-            normalizarNome(obra.value);
+        const obraNorm = normalizarNome(obra.value);
 
-        const itens =
-            movimentacoesBrutas.filter(i =>
-                normalizarNome(i.obra) === obraNorm
-            );
+        const itens = movimentacoesBrutas.filter(i =>
+            normalizarNome(i.obra) === obraNorm
+        );
 
         if (!itens.length) return;
 
         // Converte dd/mm/yyyy para Date
         const datas = itens
             .map(i => {
-
                 if (!i.data) return null;
 
                 const partes = i.data.split('/');
-
                 if (partes.length !== 3) return null;
 
                 const dia = parseInt(partes[0]);
@@ -649,175 +645,114 @@ window.addEventListener('load', () => {
                 const ano = parseInt(partes[2]);
 
                 return new Date(ano, mes, dia);
-
             })
-            .filter(d =>
-                d instanceof Date &&
-                !isNaN(d.getTime())
-            );
+            .filter(d => d instanceof Date && !isNaN(d.getTime()));
 
         if (!datas.length) return;
 
-        const dataInicio =
-            new Date(
-                Math.min(
-                    ...datas.map(d => d.getTime())
-                )
-            );
+        // Determina início e fim do cronograma
+        const dataInicio = new Date(Math.min(...datas.map(d => d.getTime())));
+        const dataFim = new Date(Math.max(...datas.map(d => d.getTime())));
 
-        const dataFim =
-            new Date(
-                Math.max(
-                    ...datas.map(d => d.getTime())
-                )
-            );
-
+        // Data de hoje zerada
         const hoje = new Date();
-
-        // Zera as horas para comparação correta
         hoje.setHours(0, 0, 0, 0);
 
-        const prazoTotal =
-            dataFim.getTime() -
-            dataInicio.getTime();
+        // Data de referência = ontem
+        const referencia = new Date(hoje);
+        referencia.setDate(referencia.getDate() - 1);
 
-        const prazoDecorrido =
-            hoje.getTime() -
-            dataInicio.getTime();
+        // Percentual do tempo decorrido da obra
+        const prazoTotal = dataFim.getTime() - dataInicio.getTime();
+        const prazoDecorrido = hoje.getTime() - dataInicio.getTime();
 
         let porcentagemCronograma = 0;
 
         if (prazoTotal > 0) {
-
-            porcentagemCronograma =
-                Math.round(
-                    (prazoDecorrido / prazoTotal) * 100
-                );
-
-            porcentagemCronograma =
-                Math.max(
-                    0,
-                    Math.min(100, porcentagemCronograma)
-                );
+            porcentagemCronograma = Math.round((prazoDecorrido / prazoTotal) * 100);
+            porcentagemCronograma = Math.max(0, Math.min(100, porcentagemCronograma));
         }
 
-        // Conta apenas etapas até hoje
-        const etapasAteHoje = itens.filter(i => {
-
+        // Etapas que deveriam estar concluídas até ontem
+        const etapasAteOntem = itens.filter(i => {
             if (!i.data) return false;
-
             const dataParsed = parseDateFlexible(i.data);
-
-            return dataParsed && dataParsed <= hoje;
+            return dataParsed && dataParsed <= referencia;
         });
 
-        const totalAteHoje = etapasAteHoje.length;
-        const etapasRealizadasAteHoje = etapasAteHoje.filter(i =>
+        const totalAteOntem = etapasAteOntem.length;
+
+        const etapasRealizadasAteOntem = etapasAteOntem.filter(i =>
             i.status &&
             i.status.toUpperCase() === 'REALIZADO'
         ).length;
 
-        const porcentagemRealizadoAteHoje = totalAteHoje > 0
-            ? Math.round((etapasRealizadasAteHoje / totalAteHoje) * 100)
-            : 0;
+        const porcentagemRealizadoAteOntem =
+            totalAteOntem > 0
+                ? Math.round((etapasRealizadasAteOntem / totalAteOntem) * 100)
+                : 0;
 
-        // Determina cor: verde se realizado >= esperado, vermelho se abaixo
-        const corRotulo =
-            getCorRotulo();
-
+        // COR DO GRÁFICO ============================================
+        // Verde somente se tudo até ontem estiver 100% concluído
         let corProgresso = '#ee0303'; // vermelho por padrão
 
-        // Se tudo que deveria ter sido feito até hoje está 100% realizado → verde
-        if (porcentagemRealizadoAteHoje === 100) {
-            corProgresso = '#00c851';
+        if (porcentagemRealizadoAteOntem === 100) {
+            corProgresso = '#00c851'; // verde
         }
 
+        const corRotulo = getCorRotulo();
+
+        // ATUALIZA O GRÁFICO ========================================
         myChart.setOption({
-
             series: [{
-
                 type: 'gauge',
-
                 startAngle: 180,
-
                 endAngle: 0,
-
                 min: 0,
-
                 max: 100,
 
                 progress: {
-
                     show: true,
-
                     width: 18,
-
-                    itemStyle: {
-                        color: corProgresso
-                    }
+                    itemStyle: { color: corProgresso }
                 },
 
                 axisLine: {
-                    lineStyle: {
-                        width: 18
-                    }
+                    lineStyle: { width: 18 }
                 },
 
-                axisTick: {
-                    show: false
-                },
-
-                splitLine: {
-                    show: false
-                },
+                axisTick: { show: false },
+                splitLine: { show: false },
 
                 axisLabel: {
-
                     distance: 5,
-
                     color: corRotulo,
-
                     fontSize: 10
                 },
 
                 pointer: {
-
                     show: true,
-
                     length: '60%',
-
                     width: 6,
-
-                    itemStyle: {
-                        color: corProgresso
-                    }
+                    itemStyle: { color: corProgresso }
                 },
 
                 detail: {
-
                     show: true,
-
                     valueAnimation: true,
-
                     formatter: '{value}%',
-
                     color: corRotulo,
-
                     fontSize: 16,
-
                     offsetCenter: [0, '18%']
                 },
 
-                title: {
-                    show: false
-                },
+                title: { show: false },
 
                 data: [{
                     value: porcentagemCronograma
                 }]
             }]
         });
-
     }
 
     // ============================================================
