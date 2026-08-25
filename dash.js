@@ -215,7 +215,6 @@ window.addEventListener('load', () => {
 
             mapaObraSelecionada();
 
-            atualizarModelo3D();
         });
 
     // TABELA ============================================================
@@ -289,30 +288,6 @@ window.addEventListener('load', () => {
 
     }
 
-    // modelo 3D====================================================
-
-    function atualizarModelo3D() {
-
-        const obraSelecionada =
-            document.getElementById("obra").value;
-
-        const goioere =
-            document.getElementById("goioere");
-
-        const maringa =
-            document.getElementById("maringa");
-
-        goioere.style.display = "none";
-        maringa.style.display = "none";
-
-        if (obraSelecionada === "Goioerê") {
-            goioere.style.display = "block";
-        }
-
-        if (obraSelecionada === "Maringá") {
-            maringa.style.display = "block";
-        }
-    }
 
     // INDICADORES=====================================================
 
@@ -692,12 +667,11 @@ window.addEventListener('load', () => {
                 ? Math.round((etapasRealizadasAteOntem / totalAteOntem) * 100)
                 : 0;
 
-        // COR DO GRÁFICO ============================================
-        // Verde somente se tudo até ontem estiver 100% concluído
-        let corProgresso = '#ee0303'; // vermelho por padrão
+
+        let corProgresso = '#ee0303';
 
         if (porcentagemRealizadoAteOntem === 100) {
-            corProgresso = '#00c851'; // verde
+            corProgresso = '#00c851';
         }
 
         const corRotulo = getCorRotulo();
@@ -907,8 +881,8 @@ window.addEventListener('load', () => {
 
         marcadorAtual = L.marker(dados.coords)
             .addTo(map)
-            .bindPopup(dados.popup);
-        // .openPopup();
+            .bindPopup(dados.popup)
+            .openPopup();
 
 
         map.flyTo(
@@ -937,7 +911,6 @@ window.addEventListener('load', () => {
 
             mapaObraSelecionada();
 
-            atualizarModelo3D();
         });
 
 });
