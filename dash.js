@@ -1,241 +1,167 @@
 window.addEventListener('load', () => {
 
     // ============================================================
-    // ELEMENTOS
+    // VARIÁVEIS GLOBAIS
     // ============================================================
 
-    const obra = document.getElementById('obra');
+    let movimentacoesBrutas = [];
+    let obraSelecionada = null;
 
-    const myChart = echarts.init(
-        document.getElementById('gauge')
-    );
-
-    const myLineChart = echarts.init(
-        document.getElementById('line')
-    );
+    const myChart = echarts.init(document.getElementById('gauge'));
+    const myLineChart = echarts.init(document.getElementById('line'));
 
     const url =
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUZfSlgLpjKgGoGB9b_vLq9X10oX61iW7TJ_iUH4t4tmI02Kk4Xn8xyYo19vhQfoNtmVPLRhd-EFIC/pub?gid=640424636&single=true&output=csv";
-
-    let movimentacoesBrutas = [];
 
     // ============================================================
     // FUNÇÕES AUXILIARES
     // ============================================================
 
     function getCorRotulo() {
-
-        return document.body.classList.contains(
-            'dark-mode-variables'
-        )
+        return document.body.classList.contains('dark-mode-variables')
             ? '#FFFFFF'
             : '#000000';
     }
 
     function normalizarNome(texto) {
-
         if (!texto) return '';
-
-        return texto
-            .normalize('NFD')
+        return texto.normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
             .trim();
     }
 
     function parseDateFlexible(str) {
-
         if (!str) return null;
 
-        const br =
-            /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(str);
+        const br = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(str);
+        if (br) return new Date(br[3], br[2] - 1, br[1]);
 
-        if (br) {
-            return new Date(br[3], br[2] - 1, br[1]);
-        }
-
-        const iso =
-            /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(str);
-
-        if (iso) {
-            return new Date(iso[1], iso[2] - 1, iso[3]);
-        }
+        const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(str);
+        if (iso) return new Date(iso[1], iso[2] - 1, iso[3]);
 
         const d = new Date(str);
-
         return isNaN(d) ? null : d;
     }
 
     // ============================================================
-    // OBSERVA DARK MODE
+    // TEMA
     // ============================================================
 
-
     function atualizarTemaGraficos() {
-
         const cor = getCorRotulo();
 
         myChart.setOption({
             series: [{
-                axisLabel: {
-                    color: cor
-                },
-                detail: {
-                    color: cor
-                }
+                axisLabel: { color: cor },
+                detail: { color: cor }
             }]
         });
 
         myLineChart.setOption({
-
-            xAxis: {
-                axisLabel: {
-                    color: cor
-                }
-            },
-
-            yAxis: {
-                axisLabel: {
-                    color: cor
-                }
-            }
+            xAxis: { axisLabel: { color: cor } },
+            yAxis: { axisLabel: { color: cor } }
         });
 
         atualizarTemaMapa();
         graficoVelocimetro();
     }
 
-    const observer = new MutationObserver(() => {
-        atualizarTemaGraficos();
-    });
+    new MutationObserver(atualizarTemaGraficos)
+        .observe(document.body, { attributes: true });
 
-    observer.observe(document.body, {
-        attributes: true
-    });
-
-    // CARREGA PLANILHA ============================================================
 
     fetch(url)
-        .then(response => response.text())
+        .then(r => r.text())
         .then(csvText => {
 
             const resultados = Papa.parse(csvText, {
-
                 header: true,
-
                 dynamicTyping: false,
-
                 skipEmptyLines: true,
-
-                transformHeader: h =>
-                    h.trim().toLowerCase()
+                transformHeader: h => h.trim().toLowerCase()
             });
 
-            movimentacoesBrutas =
-                resultados.data.map(row => ({
+            movimentacoesBrutas = resultados.data.map(row => ({
+                obra: (row['obra'] || '').trim(),
+                data: (row['data'] || '').trim(),
+                etapa: (row['etapa'] || '').trim(),
+                status: (row['status'] || '').trim().toUpperCase()
+            }));
 
-                    obra: (row['obra'] || '').trim(),
-
-                    data: (row['data'] || '').trim(),
-
-                    etapa: (row['etapa'] || '').trim(),
-
-                    status: (row['status'] || '').trim().toUpperCase()
-                }));
-
-
-            // GERA O DIA DA OBRA AUTOMATICAMENTE
+            // GERA DIA DA OBRA
             const obrasAgrupadas = {};
 
             movimentacoesBrutas.forEach(item => {
-
-                if (!obrasAgrupadas[item.obra]) {
-                    obrasAgrupadas[item.obra] = [];
-                }
-
+                if (!obrasAgrupadas[item.obra]) obrasAgrupadas[item.obra] = [];
                 obrasAgrupadas[item.obra].push(item);
             });
 
             Object.values(obrasAgrupadas).forEach(itensObra => {
-
-                itensObra.sort((a, b) =>
-                    parseDateFlexible(a.data) -
-                    parseDateFlexible(b.data)
-                );
+                itensObra.sort((a, b) => parseDateFlexible(a.data) - parseDateFlexible(b.data));
 
                 let diaObra = 0;
                 let ultimaData = '';
 
                 itensObra.forEach(item => {
-
                     if (item.data !== ultimaData) {
-
                         diaObra++;
-
                         ultimaData = item.data;
                     }
-
                     item.dia = diaObra;
                 });
-
-                console.log(
-                    itensObra[0].obra,
-                    'Máximo dia:',
-                    Math.max(...itensObra.map(i => i.dia))
-                );
-
-                console.log(
-                    [...new Set(itensObra.map(i => i.data))]
-                );
             });
 
+            // LISTA DE OBRAS
+            const obrasUnicas = [...new Set(
+                movimentacoesBrutas.map(i => i.obra).filter(Boolean)
+            )];
 
-            const obrasUnicas = [
-                ...new Set(
-                    movimentacoesBrutas
-                        .map(i => i.obra)
-                        .filter(Boolean)
-                )
-            ];
+            // DEFINE PRIMEIRA OBRA AUTOMATICAMENTE
+            obraSelecionada = obrasUnicas[0];
 
-            obra.innerHTML =
-                obrasUnicas.map(o => `
-                <option value="${o}">
-                    ${o}
-                </option>
-            `).join('');
+            selecionarObra(obraSelecionada);
 
-            atualizarIndicadores();
+            // CRIA MARCADORES NO MAPA
+            Object.keys(obrasMapa).forEach(nome => {
+                const dados = obrasMapa[nome];
 
-            graficoVelocimetro();
-
-            graficoBarraEvolucao();
-
-            gerarTabelaEtapas();
-
-            mapaObraSelecionada();
+                L.marker(dados.coords)
+                    .addTo(map)
+                    .bindPopup(dados.popup)
+                    .on("click", () => selecionarObra(nome));
+            });
 
         });
 
-    // TABELA ============================================================
+    // ============================================================
+    // FUNÇÃO CENTRAL DE SELEÇÃO
+    // ============================================================
+
+    function selecionarObra(nome) {
+        obraSelecionada = nome;
+
+        atualizarIndicadores();
+        graficoVelocimetro();
+        graficoBarraEvolucao();
+        gerarTabelaEtapas();
+        mapaObraSelecionada();
+    }
+
+    // ============================================================
+    // TABELA
+    // ============================================================
 
     function gerarTabelaEtapas() {
 
+        const obraNorm = normalizarNome(obraSelecionada);
 
-        const obraNorm =
-            normalizarNome(obra.value);
-
-        const itens =
-            movimentacoesBrutas
-                .filter(i =>
-                    normalizarNome(i.obra)
-                    === obraNorm
-                )
-                .sort((a, b) => a.dia - b.dia);
+        const itens = movimentacoesBrutas
+            .filter(i => normalizarNome(i.obra) === obraNorm)
+            .sort((a, b) => a.dia - b.dia);
 
         let html = `
             <table class="tabela-etapas">
-
                 <thead>
                     <tr>
                         <th>Data</th>
@@ -244,349 +170,181 @@ window.addEventListener('load', () => {
                         <th>Status</th>
                     </tr>
                 </thead>
-
                 <tbody>
         `;
 
         itens.forEach(i => {
-
-            const corFundo =
-                i.status === 'REALIZADO'
-                    ? '#16eb5d'
-                    : '#ee0303';
+            const corFundo = i.status === 'REALIZADO' ? '#16eb5d' : '#ee0303';
 
             html += `
-        <tr>
-            <td>${i.data || '-'}</td>
-            <td>${i.dia || '-'}</td>
-            <td>${i.etapa || '-'}</td>
-
-            <td>
-                <span style="
-                    color:${corFundo};
-                    padding:4px 10px;
-                    border-radius:12px;
-                    font-size:12px;
-                    font-weight:600;
-                ">
-                    ${i.status || '-'}
-                </span>
-            </td>
-        </tr>
-    `;
+                <tr>
+                    <td>${i.data || '-'}</td>
+                    <td>${i.dia || '-'}</td>
+                    <td>${i.etapa || '-'}</td>
+                    <td>
+                        <span style="
+                            color:${corFundo};
+                            padding:4px 10px;
+                            border-radius:12px;
+                            font-size:12px;
+                            font-weight:600;
+                        ">
+                            ${i.status || '-'}
+                        </span>
+                    </td>
+                </tr>
+            `;
         });
 
-        html += `
-                </tbody>
-            </table>
-        `;
+        html += `</tbody></table>`;
 
-        const tabela =
-            document.getElementById("tabela_etapas");
-
-        tabela.innerHTML = html;
-
+        document.getElementById("tabela_etapas").innerHTML = html;
     }
 
-
-    // INDICADORES=====================================================
+    // ============================================================
+    // INDICADORES
+    // ============================================================
 
     function contarDiasUteis(dataInicio, dataFim) {
-
         let diasUteis = 0;
-
-        const dataAtual =
-            new Date(dataInicio);
+        const dataAtual = new Date(dataInicio);
 
         while (dataAtual <= dataFim) {
-
-            const diaSemana =
-                dataAtual.getDay();
-
-            if (
-                diaSemana !== 0 &&
-                diaSemana !== 6
-            ) {
-                diasUteis++;
-            }
-
-            dataAtual.setDate(
-                dataAtual.getDate() + 1
-            );
+            const diaSemana = dataAtual.getDay();
+            if (diaSemana !== 0 && diaSemana !== 6) diasUteis++;
+            dataAtual.setDate(dataAtual.getDate() + 1);
         }
 
         return diasUteis;
     }
 
-
     function atualizarIndicadores() {
 
-        const obraNorm =
-            normalizarNome(obra.value);
+        const obraNorm = normalizarNome(obraSelecionada);
 
-        const itens =
-            movimentacoesBrutas.filter(i =>
-                normalizarNome(i.obra)
-                === obraNorm
-            );
+        const itens = movimentacoesBrutas.filter(i =>
+            normalizarNome(i.obra) === obraNorm
+        );
 
-        const datas =
-            itens
-                .map(i =>
-                    parseDateFlexible(i.data)
-                )
-                .filter(Boolean);
+        const datas = itens.map(i => parseDateFlexible(i.data)).filter(Boolean);
 
-        const elInicio =
-            document.getElementById('data_inicio');
+        const elInicio = document.getElementById('data_inicio');
+        const elPrev = document.getElementById('termino');
+        const elCorridos = document.getElementById('qtd_dias_corridos');
+        const elTrabalhados = document.getElementById('qtd_dias_trabalhados');
+        const elTempoEscolhido = document.getElementById('tempo_obra_escolhido');
 
-        const elPrev =
-            document.getElementById('termino');
-
-        const elCorridos =
-            document.getElementById('qtd_dias_corridos');
-
-        const elTrabalhados =
-            document.getElementById('qtd_dias_trabalhados');
-
-        const elTempoEscolhido =
-            document.getElementById('tempo_obra_escolhido');
-
-        const tempoObra =
-            Math.max(
-                ...itens.map(i => Number(i.dia) || 0)
-            );
+        const tempoObra = Math.max(...itens.map(i => Number(i.dia) || 0));
 
         if (!datas.length) {
-
             elInicio.innerText = '—';
             elPrev.innerText = '—';
             elCorridos.innerText = '0';
             elTrabalhados.innerText = '0';
-
             return;
         }
 
-        const menor =
-            new Date(Math.min(...datas));
+        const menor = new Date(Math.min(...datas));
+        const termino = new Date(Math.max(...datas));
 
+        elTempoEscolhido.innerText = tempoObra;
 
-        const termino =
-            new Date(Math.max(...datas));
-
-        const diasUteis =
-            contarDiasUteis(
-                menor,
-                termino
-            );
-
-        elTempoEscolhido.innerText =
-            tempoObra;
         function formatarData(d) {
-
-            return `
-                ${String(d.getDate()).padStart(2, '0')}/
-                ${String(d.getMonth() + 1).padStart(2, '0')}/
-                ${d.getFullYear()}
-            `.replace(/\s/g, '');
+            return `${String(d.getDate()).padStart(2, '0')}/${
+                String(d.getMonth() + 1).padStart(2, '0')
+            }/${d.getFullYear()}`;
         }
 
-        elInicio.innerText =
-            formatarData(menor);
+        elInicio.innerText = formatarData(menor);
+        elPrev.innerText = formatarData(termino);
 
-        elPrev.innerText =
-            formatarData(termino);
-
-        const maior =
-            new Date(Math.max(...datas));
-
-        const diffDias = Math.ceil(
-            (maior - menor) / 86400000
-        );
-
-        elCorridos.innerText =
-            diffDias >= 0
-                ? diffDias
-                : 0;
+        const diffDias = Math.ceil((termino - menor) / 86400000);
+        elCorridos.innerText = diffDias >= 0 ? diffDias : 0;
 
         const diasTrabalhados = Math.max(
             0,
-            ...itens
-                .filter(i =>
-                    i.status &&
-                    i.status.toUpperCase() === 'REALIZADO'
-                )
-                .map(i => Number(i.dia) || 0)
+            ...itens.filter(i => i.status === 'REALIZADO').map(i => Number(i.dia) || 0)
         );
 
-        elTrabalhados.innerText =
-            diasTrabalhados;
+        elTrabalhados.innerText = diasTrabalhados;
     }
 
-    // GRAFICO LINHA===================================================
-
+    // ============================================================
+    // GRÁFICO DE BARRAS
+    // ============================================================
 
     function graficoBarraEvolucao() {
 
         const tempoObra =
-            parseInt(
-                document.getElementById(
-                    "tempo_obra_escolhido"
-                ).innerText
-            ) || 0;
+            parseInt(document.getElementById("tempo_obra_escolhido").innerText) || 0;
 
-        const obraNorm =
-            normalizarNome(obra.value);
+        const obraNorm = normalizarNome(obraSelecionada);
 
-        const itens =
-            movimentacoesBrutas
-                .filter(i =>
-                    normalizarNome(i.obra) === obraNorm
-                )
-                .sort((a, b) => a.dia - b.dia);
+        const itens = movimentacoesBrutas
+            .filter(i => normalizarNome(i.obra) === obraNorm)
+            .sort((a, b) => a.dia - b.dia);
 
-        const eixoX =
-            Array.from(
-                { length: tempoObra },
-                (_, i) => i + 1
-            );
+        const eixoX = Array.from({ length: tempoObra }, (_, i) => i + 1);
 
         const realizado = [];
         const pendente = [];
 
         for (let d = 1; d <= tempoObra; d++) {
+            const etapasDia = itens.filter(i => i.dia === d);
+            const possuiRealizado = etapasDia.some(i => i.status === "REALIZADO");
 
-            const etapasDia =
-                itens.filter(i => i.dia === d);
-
-            const possuiRealizado =
-                etapasDia.some(i =>
-                    i.status &&
-                    i.status.toUpperCase() === "REALIZADO"
-                );
-
-            if (possuiRealizado) {
-
-                realizado.push(d);
-                pendente.push(null);
-
-            } else {
-
-                realizado.push(null);
-                pendente.push(d);
-            }
+            realizado.push(possuiRealizado ? d : null);
+            pendente.push(possuiRealizado ? null : d);
         }
 
-        const corRotulo =
-            getCorRotulo();
+        const corRotulo = getCorRotulo();
 
         const optionLine = {
-
             tooltip: {
-
                 trigger: 'axis',
+                formatter: params => {
+                    const diaAtual = Number(params[0].axisValue);
+                    const etapasDoDia = itens.filter(i => i.dia === diaAtual);
 
-                formatter: function (params) {
+                    if (!etapasDoDia.length) return `<div>Nenhuma etapa</div>`;
 
-                    const diaAtual =
-                        Number(params[0].axisValue);
-
-                    const etapasDoDia =
-                        itens.filter(i =>
-                            i.dia === diaAtual
-                        );
-
-                    if (!etapasDoDia.length) {
-
-                        return `
-                        <div>
-                            Nenhuma etapa
-                        </div>
-                    `;
-                    }
-
-                    const etapasHTML =
-                        etapasDoDia
-                            .map(i => {
-
-                                const cor =
-                                    i.status &&
-                                        i.status.toUpperCase() === "REALIZADO"
-                                        ? "#16eb5d"
-                                        : "#ee0303";
-
-                                return `
-                                <span style="color:${cor}">
-                                    ● ${i.etapa}
-                                </span>
-                            `;
-                            })
-                            .join("<br>");
+                    const etapasHTML = etapasDoDia.map(i => {
+                        const cor = i.status === "REALIZADO" ? "#16eb5d" : "#ee0303";
+                        return `<span style="color:${cor}">● ${i.etapa}</span>`;
+                    }).join("<br>");
 
                     return `
-                    <div style="
-                        padding:8px;
-                        line-height:1.6;
-                    ">
-                        <strong>
-                            Dia ${diaAtual}
-                        </strong>
-                        <br><br>
-                        ${etapasHTML}
-                    </div>
-                `;
+                        <div style="padding:8px; line-height:1.6;">
+                            <strong>Dia ${diaAtual}</strong><br><br>
+                            ${etapasHTML}
+                        </div>
+                    `;
                 }
             },
 
-            grid: {
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                containLabel: false
-            },
+            grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
 
             xAxis: {
                 type: 'category',
                 data: eixoX,
-                axisLabel: {
-                    color: corRotulo
-                }
+                axisLabel: { color: corRotulo }
             },
 
-            yAxis: {
-                show: false,
-                type: 'value',
-                max: tempoObra
-            },
+            yAxis: { show: false, type: 'value', max: tempoObra },
 
             series: [
-
                 {
                     name: 'REALIZADO',
-
                     type: 'bar',
-
                     barGap: '-100%',
-
-                    itemStyle: {
-                        color: '#16eb5d'
-                    },
-
+                    itemStyle: { color: '#16eb5d' },
                     data: realizado
                 },
-
                 {
                     name: 'PENDENTE',
-
                     type: 'bar',
-
                     barGap: '-100%',
-
-                    itemStyle: {
-                        color: '#ee0303'
-                    },
-
+                    itemStyle: { color: '#ee0303' },
                     data: pendente
                 }
             ]
@@ -595,11 +353,13 @@ window.addEventListener('load', () => {
         myLineChart.setOption(optionLine);
     }
 
-    // VELOCIMETRO=================================================
+    // ============================================================
+    // VELOCÍMETRO
+    // ============================================================
 
     function graficoVelocimetro() {
 
-        const obraNorm = normalizarNome(obra.value);
+        const obraNorm = normalizarNome(obraSelecionada);
 
         const itens = movimentacoesBrutas.filter(i =>
             normalizarNome(i.obra) === obraNorm
@@ -607,37 +367,25 @@ window.addEventListener('load', () => {
 
         if (!itens.length) return;
 
-        // Converte dd/mm/yyyy para Date
         const datas = itens
             .map(i => {
                 if (!i.data) return null;
-
-                const partes = i.data.split('/');
-                if (partes.length !== 3) return null;
-
-                const dia = parseInt(partes[0]);
-                const mes = parseInt(partes[1]) - 1;
-                const ano = parseInt(partes[2]);
-
-                return new Date(ano, mes, dia);
+                const [dia, mes, ano] = i.data.split('/').map(Number);
+                return new Date(ano, mes - 1, dia);
             })
             .filter(d => d instanceof Date && !isNaN(d.getTime()));
 
         if (!datas.length) return;
 
-        // Determina início e fim do cronograma
         const dataInicio = new Date(Math.min(...datas.map(d => d.getTime())));
         const dataFim = new Date(Math.max(...datas.map(d => d.getTime())));
 
-        // Data de hoje zerada
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
-        // Data de referência = ontem
         const referencia = new Date(hoje);
         referencia.setDate(referencia.getDate() - 1);
 
-        // Percentual do tempo decorrido da obra
         const prazoTotal = dataFim.getTime() - dataInicio.getTime();
         const prazoDecorrido = hoje.getTime() - dataInicio.getTime();
 
@@ -648,9 +396,7 @@ window.addEventListener('load', () => {
             porcentagemCronograma = Math.max(0, Math.min(100, porcentagemCronograma));
         }
 
-        // Etapas que deveriam estar concluídas até ontem
         const etapasAteOntem = itens.filter(i => {
-            if (!i.data) return false;
             const dataParsed = parseDateFlexible(i.data);
             return dataParsed && dataParsed <= referencia;
         });
@@ -658,8 +404,7 @@ window.addEventListener('load', () => {
         const totalAteOntem = etapasAteOntem.length;
 
         const etapasRealizadasAteOntem = etapasAteOntem.filter(i =>
-            i.status &&
-            i.status.toUpperCase() === 'REALIZADO'
+            i.status === 'REALIZADO'
         ).length;
 
         const porcentagemRealizadoAteOntem =
@@ -667,16 +412,11 @@ window.addEventListener('load', () => {
                 ? Math.round((etapasRealizadasAteOntem / totalAteOntem) * 100)
                 : 0;
 
-
         let corProgresso = '#ee0303';
-
-        if (porcentagemRealizadoAteOntem === 100) {
-            corProgresso = '#00c851';
-        }
+        if (porcentagemRealizadoAteOntem === 100) corProgresso = '#00c851';
 
         const corRotulo = getCorRotulo();
 
-        // ATUALIZA O GRÁFICO ========================================
         myChart.setOption({
             series: [{
                 type: 'gauge',
@@ -691,10 +431,7 @@ window.addEventListener('load', () => {
                     itemStyle: { color: corProgresso }
                 },
 
-                axisLine: {
-                    lineStyle: { width: 18 }
-                },
-
+                axisLine: { lineStyle: { width: 18 } },
                 axisTick: { show: false },
                 splitLine: { show: false },
 
@@ -722,195 +459,85 @@ window.addEventListener('load', () => {
 
                 title: { show: false },
 
-                data: [{
-                    value: porcentagemCronograma
-                }]
+                data: [{ value: porcentagemCronograma }]
             }]
         });
     }
 
     // ============================================================
     // MAPA
+    // ============================================================
 
     const lightTiles = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            maxZoom: 19,
-            attribution:
-                '&copy; OpenStreetMap contributors'
-        }
+        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
     );
 
     const darkTiles = L.tileLayer(
         'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        {
-            maxZoom: 19,
-            attribution:
-                '&copy; OpenStreetMap contributors &copy; CARTO'
-        }
+        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }
     );
 
     const map = L.map('map', {
-
         center: [-20.5373611, -47.4548611],
-
         zoom: 2,
-
         layers: [darkTiles]
     });
 
     let marcadorAtual = null;
 
     const obrasMapa = {
-
         "Goioerê": {
-
-            coords: [
-                -24.1858549,
-                -53.012921
-            ],
-
+            coords: [-24.1858549, -53.012921],
             popup: `
-            <div style="text-align:center;">
-
-                <h3>
-                    Goioerê - PR
-                </h3>
-
-                <img
-                    src="./img/ailton.png"
-                    style="
-                        width:80%;
-                        border-radius:10px;
-                    "
-                >
-
-                <p>
-                    Engenheiro: Ailton Barreto
-                </p>
-
-                <p>
-                    <a href="https://wa.me/5516994632838" target="_blank">
-                        WhatsApp
-                    </a>
-                </p>
-
-            </div>
-        `
+                <div style="text-align:center;">
+                    <h3>Goioerê - PR</h3>
+                    <img src="./img/ailton.png" style="width:80%; border-radius:10px;">
+                    <p>Engenheiro: Ailton Barreto</p>
+                    <p><a href="https://wa.me/5516994632838" target="_blank">WhatsApp</a></p>
+                </div>
+            `
         },
 
         "Maringá": {
-
-            coords: [
-                -23.4511371,
-                -51.8540074
-            ],
-
+            coords: [-23.4511371, -51.8540074],
             popup: `
-            <div style="text-align:center;">
-
-                <h3>
-                    Maringá - PR
-                </h3>
-
-                <img
-                    src="./img/cesar.png"
-                    style="
-                        width:80%;
-                        border-radius:10px;
-                    "
-                >
-
-                <p>
-                    Engenheiro: César Pegorari
-                </p>
-
-                    <p>
-                    <a href="https://wa.me/5516994632838" target="_blank">
-                        WhatsApp
-                    </a>
-                </p>
-
-            </div>
-        `
+                <div style="text-align:center;">
+                    <h3>Maringá - PR</h3>
+                    <img src="./img/cesar.png" style="width:80%; border-radius:10px;">
+                    <p>Engenheiro: César Pegorari</p>
+                    <p><a href="https://wa.me/5516994632838" target="_blank">WhatsApp</a></p>
+                </div>
+            `
         }
     };
 
     function atualizarTemaMapa() {
-
-        const darkMode =
-            document.body.classList.contains(
-                'dark-mode-variables'
-            );
+        const darkMode = document.body.classList.contains('dark-mode-variables');
 
         if (darkMode) {
-
-            if (map.hasLayer(lightTiles)) {
-                map.removeLayer(lightTiles);
-            }
-
-            if (!map.hasLayer(darkTiles)) {
-                map.addLayer(darkTiles);
-            }
-
+            if (map.hasLayer(lightTiles)) map.removeLayer(lightTiles);
+            if (!map.hasLayer(darkTiles)) map.addLayer(darkTiles);
         } else {
-
-            if (map.hasLayer(darkTiles)) {
-                map.removeLayer(darkTiles);
-            }
-
-            if (!map.hasLayer(lightTiles)) {
-                map.addLayer(lightTiles);
-            }
+            if (map.hasLayer(darkTiles)) map.removeLayer(darkTiles);
+            if (!map.hasLayer(lightTiles)) map.addLayer(lightTiles);
         }
     }
 
     function mapaObraSelecionada() {
 
-        const obraSelecionada =
-            document.getElementById("obra").value;
-
-        const dados =
-            obrasMapa[obraSelecionada];
-
+        const dados = obrasMapa[obraSelecionada];
         if (!dados) return;
 
-        if (marcadorAtual) {
-            map.removeLayer(marcadorAtual);
-        }
+        if (marcadorAtual) map.removeLayer(marcadorAtual);
 
         marcadorAtual = L.marker(dados.coords)
             .addTo(map)
             .bindPopup(dados.popup)
-            .openPopup();
+            .openPopup()
+            .on("click", () => selecionarObra(obraSelecionada));
 
-
-        map.flyTo(
-            dados.coords,
-            15,
-            {
-                duration: 1.5
-            }
-        );
+        map.flyTo(dados.coords, 15, { duration: 1.5 });
     }
 
-    // ============================================================
-    // EVENTOS
-
-    document
-        .getElementById("obra")
-        .addEventListener("change", () => {
-
-            atualizarIndicadores();
-
-            graficoVelocimetro();
-
-            graficoBarraEvolucao();
-
-            gerarTabelaEtapas();
-
-            mapaObraSelecionada();
-
-        });
-
-});
+})

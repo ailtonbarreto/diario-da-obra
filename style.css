@@ -104,37 +104,11 @@ b {
         justify-content: space-between;
         align-items: center;
         gap: 1vw;
-        background-color: var(--color-white);
         border-radius: var(--border-radius-1);
-        box-shadow: var(--box-shadow);
-
-        div {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 1vw;
-            padding: 0.5vw;
-        }
-
-        label {
-            font-size: 1vw;
-        }
-
-        select {
-            color: var(--color-dark);
-            background-color: transparent;
-            font-size: 1vw;
-
-            option {
-                background-color: var(--color-white);
-            }
-
-        }
 
         .material-symbols-outlined {
             cursor: pointer;
         }
-
 
     }
 
@@ -237,7 +211,7 @@ main .card_kpi:hover {
 
 .charts-container {
     display: grid;
-    grid-template-columns: 20% 45% auto;
+    grid-template-columns: 25% 45% auto;
     gap: 1.75rem;
 }
 
@@ -333,7 +307,7 @@ screen and (orientation: portrait) {
 
     .header {
         width: 100%;
-        flex-direction: column;
+        /* flex-direction: column; */
         align-items: stretch;
         gap: 1rem;
     }
@@ -348,21 +322,6 @@ screen and (orientation: portrait) {
         gap: 0.8rem;
         padding: 1rem;
 
-    }
-
-    .header .datas div {
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0;
-    }
-
-    .header .datas label {
-        font-size: 1rem;
-    }
-
-    .header .datas select {
-        font-size: 1rem;
     }
 
     .user {
