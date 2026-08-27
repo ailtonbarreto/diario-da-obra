@@ -17,12 +17,6 @@ window.addEventListener('load', () => {
     // FUNÇÕES AUXILIARES
     // ============================================================
 
-    function getCorRotulo() {
-        return document.body.classList.contains('dark-mode-variables')
-            ? '#FFFFFF'
-            : '#000000';
-    }
-
     function normalizarNome(texto) {
         if (!texto) return '';
         return texto.normalize('NFD')
@@ -49,7 +43,9 @@ window.addEventListener('load', () => {
     // ============================================================
 
     function atualizarTemaGraficos() {
-        const cor = getCorRotulo();
+        // const cor = getCorRotulo();
+
+        const cor =  "#000";
 
         myChart.setOption({
             series: [{
@@ -140,6 +136,8 @@ window.addEventListener('load', () => {
 
     function selecionarObra(nome) {
         obraSelecionada = nome;
+
+        const nome_obra = document.getElementById("nome_obra").innerHTML = nome;
 
         atualizarIndicadores();
         graficoVelocimetro();
@@ -297,7 +295,7 @@ window.addEventListener('load', () => {
             pendente.push(possuiRealizado ? null : d);
         }
 
-        const corRotulo = getCorRotulo();
+        const corRotulo =  "#000";
 
         const optionLine = {
             tooltip: {
@@ -415,7 +413,9 @@ window.addEventListener('load', () => {
         let corProgresso = '#ee0303';
         if (porcentagemRealizadoAteOntem === 100) corProgresso = '#00c851';
 
-        const corRotulo = getCorRotulo();
+        // const corRotulo = getCorRotulo();
+
+        const corRotulo = "#000";
 
         myChart.setOption({
             series: [{
@@ -466,22 +466,16 @@ window.addEventListener('load', () => {
 
     // ============================================================
     // MAPA
-    // ============================================================
 
     const lightTiles = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
     );
 
-    const darkTiles = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }
-    );
-
     const map = L.map('map', {
         center: [-20.5373611, -47.4548611],
         zoom: 2,
-        layers: [darkTiles]
+        layers: [lightTiles]
     });
 
     let marcadorAtual = null;
@@ -512,17 +506,6 @@ window.addEventListener('load', () => {
         }
     };
 
-    function atualizarTemaMapa() {
-        const darkMode = document.body.classList.contains('dark-mode-variables');
-
-        if (darkMode) {
-            if (map.hasLayer(lightTiles)) map.removeLayer(lightTiles);
-            if (!map.hasLayer(darkTiles)) map.addLayer(darkTiles);
-        } else {
-            if (map.hasLayer(darkTiles)) map.removeLayer(darkTiles);
-            if (!map.hasLayer(lightTiles)) map.addLayer(lightTiles);
-        }
-    }
 
     function mapaObraSelecionada() {
 
