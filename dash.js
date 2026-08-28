@@ -123,6 +123,7 @@ window.addEventListener('load', () => {
                     .addTo(map)
                     .bindPopup(dados.popup)
                     .on("click", () => selecionarObra(nome));
+                    map.zoomControl.remove();
             });
 
         });
@@ -480,7 +481,7 @@ window.addEventListener('load', () => {
                     show: true,
                     length: '60%',
                     width: 6,
-                    itemStyle: { color: corProgresso }
+                    itemStyle: { color: "#353535" }
                 },
 
                 detail: {
@@ -521,8 +522,8 @@ window.addEventListener('load', () => {
             popup: `
                 <div style="text-align:center;">
                     <h3>Goioerê - PR</h3>
-                    <img src="./img/ailton.png" style="width:80%; border-radius:10px;">
-                    <p>Engenheiro: Ailton Barreto</p>
+                    <img src="./img/fernando.png" style="width:80%; border-radius:10px;">
+                    <p>Engenheiro: Fernando Martins</p>
                     <p><a href="https://wa.me/5516994632838" target="_blank">WhatsApp</a></p>
                 </div>
             `
