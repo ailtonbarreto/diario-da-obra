@@ -269,7 +269,7 @@ window.addEventListener('load', () => {
 
         const lista = Object.keys(grupos).map(etapa => {
             const g = grupos[etapa];
-            const percentual = g.total > 0 ? ((g.realizados / g.total) * 100).toFixed(2) : 0;
+            const percentual = g.total > 0 ? ((g.realizados / g.total) * 100).toFixed(0) : 0;
 
             return {
                 etapa,
