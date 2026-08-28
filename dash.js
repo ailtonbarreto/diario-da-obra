@@ -1,9 +1,5 @@
 window.addEventListener('load', () => {
 
-    // ============================================================
-    // VARIÁVEIS GLOBAIS
-    // ============================================================
-
     let movimentacoesBrutas = [];
     let obraSelecionada = null;
 
@@ -45,7 +41,7 @@ window.addEventListener('load', () => {
     function atualizarTemaGraficos() {
         // const cor = getCorRotulo();
 
-        const cor =  "#000";
+        const cor = "#000";
 
         myChart.setOption({
             series: [{
@@ -82,6 +78,7 @@ window.addEventListener('load', () => {
                 obra: (row['obra'] || '').trim(),
                 data: (row['data'] || '').trim(),
                 etapa: (row['etapa'] || '').trim(),
+                desc: (row["desc"] || '').trim(),
                 status: (row['status'] || '').trim().toUpperCase()
             }));
 
@@ -131,8 +128,7 @@ window.addEventListener('load', () => {
         });
 
     // ============================================================
-    // FUNÇÃO CENTRAL DE SELEÇÃO
-    // ============================================================
+
 
     function selecionarObra(nome) {
         obraSelecionada = nome;
@@ -144,11 +140,11 @@ window.addEventListener('load', () => {
         graficoBarraEvolucao();
         gerarTabelaEtapas();
         mapaObraSelecionada();
+        gerarCardsProgresso();
     }
 
     // ============================================================
     // TABELA
-    // ============================================================
 
     function gerarTabelaEtapas() {
 
@@ -158,13 +154,13 @@ window.addEventListener('load', () => {
             .filter(i => normalizarNome(i.obra) === obraNorm)
             .sort((a, b) => a.dia - b.dia);
 
+
         let html = `
             <table class="tabela-etapas">
                 <thead>
                     <tr>
                         <th>Data</th>
-                        <th>Dia</th>
-                        <th>Etapa</th>
+                        <th>Desc</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -177,8 +173,7 @@ window.addEventListener('load', () => {
             html += `
                 <tr>
                     <td>${i.data || '-'}</td>
-                    <td>${i.dia || '-'}</td>
-                    <td>${i.etapa || '-'}</td>
+                    <td>${i.desc || '-'}</td>
                     <td>
                         <span style="
                             color:${corFundo};
@@ -201,20 +196,7 @@ window.addEventListener('load', () => {
 
     // ============================================================
     // INDICADORES
-    // ============================================================
 
-    function contarDiasUteis(dataInicio, dataFim) {
-        let diasUteis = 0;
-        const dataAtual = new Date(dataInicio);
-
-        while (dataAtual <= dataFim) {
-            const diaSemana = dataAtual.getDay();
-            if (diaSemana !== 0 && diaSemana !== 6) diasUteis++;
-            dataAtual.setDate(dataAtual.getDate() + 1);
-        }
-
-        return diasUteis;
-    }
 
     function atualizarIndicadores() {
 
@@ -248,9 +230,8 @@ window.addEventListener('load', () => {
         elTempoEscolhido.innerText = tempoObra;
 
         function formatarData(d) {
-            return `${String(d.getDate()).padStart(2, '0')}/${
-                String(d.getMonth() + 1).padStart(2, '0')
-            }/${d.getFullYear()}`;
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')
+                }/${d.getFullYear()}`;
         }
 
         elInicio.innerText = formatarData(menor);
@@ -268,8 +249,60 @@ window.addEventListener('load', () => {
     }
 
     // ============================================================
-    // GRÁFICO DE BARRAS
+    // EVOLUCAO CONTAINER
+
+
+    function calcularPercentuaisEtapas() {
+        const obraNorm = normalizarNome(obraSelecionada);
+
+        const itens = movimentacoesBrutas.filter(i =>
+            normalizarNome(i.obra) === obraNorm
+        );
+
+        const grupos = {};
+
+        itens.forEach(i => {
+            if (!grupos[i.etapa]) grupos[i.etapa] = { total: 0, realizados: 0 };
+            grupos[i.etapa].total++;
+            if (i.status === "REALIZADO") grupos[i.etapa].realizados++;
+        });
+
+        const lista = Object.keys(grupos).map(etapa => {
+            const g = grupos[etapa];
+            const percentual = g.total > 0 ? ((g.realizados / g.total) * 100).toFixed(2) : 0;
+
+            return {
+                etapa,
+                percentual
+            };
+        });
+
+        return lista;
+    }
+
+    function gerarCardsProgresso() {
+        const lista = calcularPercentuaisEtapas();
+
+        const container = document.getElementById("cards_progresso");
+        container.innerHTML = "";
+
+        lista.forEach(item => {
+            container.innerHTML += `
+            <div class="card-etapa">
+                <div class="titulo">${item.etapa}</div>
+                <div class="percentual">${item.percentual}%</div>
+                <div class="barra">
+                    <div class="preenchimento" style="width:${item.percentual}%"></div>
+                </div>
+            </div>
+        `;
+        });
+    }
+
+
+
     // ============================================================
+    // GRAFICO DE BARRAS
 
     function graficoBarraEvolucao() {
 
@@ -295,7 +328,7 @@ window.addEventListener('load', () => {
             pendente.push(possuiRealizado ? null : d);
         }
 
-        const corRotulo =  "#000";
+        const corRotulo = "#000";
 
         const optionLine = {
             tooltip: {
@@ -306,17 +339,19 @@ window.addEventListener('load', () => {
 
                     if (!etapasDoDia.length) return `<div>Nenhuma etapa</div>`;
 
+                    const dataAtual = etapasDoDia[0].data;
+
                     const etapasHTML = etapasDoDia.map(i => {
                         const cor = i.status === "REALIZADO" ? "#16eb5d" : "#ee0303";
-                        return `<span style="color:${cor}">● ${i.etapa}</span>`;
+                        return `<span style="color:${cor}">● ${i.desc}</span>`;
                     }).join("<br>");
 
                     return `
                         <div style="padding:8px; line-height:1.6;">
-                            <strong>Dia ${diaAtual}</strong><br><br>
+                            <strong>${dataAtual}</strong><br><br>
                             ${etapasHTML}
                         </div>
-                    `;
+                `;
                 }
             },
 

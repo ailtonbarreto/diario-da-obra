@@ -222,7 +222,6 @@ main .card_kpi:hover {
     padding: 0.5vw;
     height: 15vw;
     transition: all 0.3s ease;
-    ;
 }
 
 .chart_card:hover {
@@ -276,7 +275,50 @@ main .card_kpi:hover {
     z-index: 10;
     background-color: var(--color-white);
 }
+/* ------------------------------------------------------------ */
 
+/* CONTAINER EVOLUCAO */
+.progresso-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 18px;
+    margin-top: 10px;
+}
+
+.card-etapa {
+    /* background: #cf0d0d; */
+    padding: 18px;
+    border-radius: 0.5vw;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card-etapa .titulo {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-etapa .percentual {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.barra {
+    background: #e6e6e6;
+    height: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.preenchimento {
+    background: #07e777;
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
 
 /* ----------------------------------------------------------------------- */
 
