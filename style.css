@@ -439,9 +439,18 @@ screen and (orientation: portrait) {
         padding: 0.5rem;
     }
 
+    .mobile{
+        height: 140vh;
+    }
+
+    .progresso-container{
+        display: flex;
+        flex-direction: column;
+    }
+
     #map {
         width: 100%;
-        height: 100%;
+        height: 70vh;
         padding: 0;
     }
 
