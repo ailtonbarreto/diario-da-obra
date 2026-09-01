@@ -24,6 +24,8 @@ window.addEventListener('load', () => {
     function parseDateFlexible(str) {
         if (!str) return null;
 
+
+
         const br = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(str);
         if (br) return new Date(br[3], br[2] - 1, br[1]);
 
@@ -34,8 +36,40 @@ window.addEventListener('load', () => {
         return isNaN(d) ? null : d;
     }
 
+
     // ============================================================
     // MAPA
+
+    function calcularPercentualRealizadoAteOntem() {
+        const obraNorm = normalizarNome(obraSelecionada);
+
+        const itens = movimentacoesBrutas.filter(i =>
+            normalizarNome(i.obra) === obraNorm
+        );
+
+        if (!itens.length) return 0;
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const referencia = new Date(hoje);
+        referencia.setDate(referencia.getDate() - 1);
+
+        const etapasAteOntem = itens.filter(i => {
+            const dataParsed = parseDateFlexible(i.data);
+            return dataParsed && dataParsed <= referencia;
+        });
+
+        const totalAteOntem = etapasAteOntem.length;
+
+        const etapasRealizadasAteOntem = etapasAteOntem.filter(i =>
+            i.status === 'REALIZADO'
+        ).length;
+
+        return totalAteOntem > 0
+            ? Math.round((etapasRealizadasAteOntem / totalAteOntem) * 100)
+            : 0;
+    }
 
     function calcularPercentualObraSelecionada() {
         const lista = calcularPercentuaisEtapas();
@@ -82,25 +116,32 @@ window.addEventListener('load', () => {
         layers: [lightTiles]
     });
 
-
-
     let marcadorAtual = null;
 
     const obrasMapa = {
-        "Goioerê": {
+        "Goioerê UH-02": {
             coords: [-24.1858549, -53.012921],
             popup: `
                 <div style="text-align:center;">
-                    <h3>Goioerê - PR</h3>
+                    <h3>Goioerê UH-02</h3>
                 </div>
             `
         },
 
-        "Maringá": {
+        "Franca UH-O3": {
+            coords: [-20.536524, -47.448063],
+            popup: `
+                <div style="text-align:center;">
+                    <h3>Franca UH-03</h3>
+                </div>
+            `
+        },
+
+        "Maringá UH-01": {
             coords: [-23.4511371, -51.8540074],
             popup: `
                 <div style="text-align:center;">
-                    <h3>Maringá - PR</h3>
+                    <h3>Maringá UH-01</h3>
                 </div>
             `
         }
@@ -111,9 +152,8 @@ window.addEventListener('load', () => {
         const dados = obrasMapa[obraSelecionada];
         if (!dados) return;
 
-        const percentual = calcularPercentualObraSelecionada();
-
-        const icone = escolherIconeVelocimetro(percentual);
+        const percentualOntem = calcularPercentualRealizadoAteOntem();
+        const icone = escolherIconeVelocimetro(percentualOntem);
 
         if (marcadorAtual) map.removeLayer(marcadorAtual);
 
@@ -126,11 +166,7 @@ window.addEventListener('load', () => {
         map.flyTo(dados.coords, 6, { duration: 1.5 });
     }
 
-    
-
     // ------------------------------------------------------
-
-
 
     fetch(url)
         .then(r => r.text())
@@ -151,7 +187,6 @@ window.addEventListener('load', () => {
                 status: (row['status'] || '').trim().toUpperCase()
             }));
 
-            // GERA DIA DA OBRA
             const obrasAgrupadas = {};
 
             movimentacoesBrutas.forEach(item => {
@@ -174,34 +209,33 @@ window.addEventListener('load', () => {
                 });
             });
 
-            // LISTA DE OBRAS
             const obrasUnicas = [...new Set(
                 movimentacoesBrutas.map(i => i.obra).filter(Boolean)
             )];
 
-            // DEFINE PRIMEIRA OBRA AUTOMATICAMENTE
             obraSelecionada = obrasUnicas[0];
 
             selecionarObra(obraSelecionada);
 
+
             Object.keys(obrasMapa).forEach(nome => {
                 const dados = obrasMapa[nome];
 
-                const percentual = calcularPercentualObraSelecionada();
-                const icone = escolherIconeVelocimetro(percentual);
+                obraSelecionada = nome;
+
+                const percentualOntem = calcularPercentualRealizadoAteOntem();
+                const icone = escolherIconeVelocimetro(percentualOntem);
 
                 L.marker(dados.coords, { icon: icone })
                     .addTo(map)
                     .bindPopup(dados.popup)
                     .on("click", () => selecionarObra(nome));
-                    map.zoomControl.remove();
+                map.zoomControl.remove();
             });
-
 
         });
 
     // ============================================================
-
 
     function selecionarObra(nome) {
         obraSelecionada = nome;
@@ -461,8 +495,7 @@ window.addEventListener('load', () => {
     }
 
     // ============================================================
-    // VELOCÍMETRO
-    // ============================================================
+    // VELOCIMETRO
 
     function graficoVelocimetro() {
 
