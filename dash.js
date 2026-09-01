@@ -1,4 +1,4 @@
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
 
     let movimentacoesBrutas = [];
     let obraSelecionada = null;
@@ -10,8 +10,7 @@ window.addEventListener('load', () => {
         "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUZfSlgLpjKgGoGB9b_vLq9X10oX61iW7TJ_iUH4t4tmI02Kk4Xn8xyYo19vhQfoNtmVPLRhd-EFIC/pub?gid=640424636&single=true&output=csv";
 
     // ============================================================
-    // FUNÇÕES AUXILIARES
-    // ============================================================
+    // FUNCOES AUXILIARES
 
     function normalizarNome(texto) {
         if (!texto) return '';
@@ -71,14 +70,7 @@ window.addEventListener('load', () => {
             : 0;
     }
 
-    function calcularPercentualObraSelecionada() {
-        const lista = calcularPercentuaisEtapas();
-        if (!lista.length) return 0;
-
-        const soma = lista.reduce((acc, e) => acc + Number(e.percentual), 0);
-        return Math.round(soma / lista.length);
-    }
-
+    // --------------------------------------------------------------------------------------------
 
     const iconVerde = L.icon({
         iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
@@ -166,7 +158,7 @@ window.addEventListener('load', () => {
         map.flyTo(dados.coords, 6, { duration: 1.5 });
     }
 
-    // ------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
 
     fetch(url)
         .then(r => r.text())
@@ -245,49 +237,10 @@ window.addEventListener('load', () => {
         atualizarIndicadores();
         graficoVelocimetro();
         graficoBarraEvolucao();
-        gerarTabelaEtapas();
         mapaObraSelecionada();
         gerarCardsProgresso();
     }
 
-    // ============================================================
-    // TABELA
-
-    function gerarTabelaEtapas() {
-
-        const obraNorm = normalizarNome(obraSelecionada);
-
-        const itens = movimentacoesBrutas
-            .filter(i => normalizarNome(i.obra) === obraNorm)
-            .sort((a, b) => a.dia - b.dia);
-
-
-        let html = `
-            <table class="tabela-etapas">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Desc</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        itens.forEach(i => {
-            const corFundo = i.status === 'REALIZADO' ? '#16eb5d' : '#ee0303';
-
-            html += `
-                <tr>
-                    <td style="color: ${corFundo};">${i.data || '-'}</td>
-                    <td style="color: ${corFundo};">${i.desc || '-'}</td>
-                </tr>
-            `;
-        });
-
-        html += `</tbody></table>`;
-
-        document.getElementById("tabela_etapas").innerHTML = html;
-    }
 
     // ============================================================
     // INDICADORES
@@ -407,8 +360,6 @@ window.addEventListener('load', () => {
         });
     }
 
-
-
     // ============================================================
     // GRAFICO DE BARRAS
 
@@ -428,12 +379,38 @@ window.addEventListener('load', () => {
         const realizado = [];
         const pendente = [];
 
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const ontem = new Date(hoje);
+        ontem.setDate(ontem.getDate() - 1);
+
         for (let d = 1; d <= tempoObra; d++) {
+
             const etapasDia = itens.filter(i => i.dia === d);
+
+            if (!etapasDia.length) {
+                realizado.push(null);
+                pendente.push(null);
+                continue;
+            }
+
             const possuiRealizado = etapasDia.some(i => i.status === "REALIZADO");
 
-            realizado.push(possuiRealizado ? d : null);
-            pendente.push(possuiRealizado ? null : d);
+            if (possuiRealizado) {
+                realizado.push(d);
+                pendente.push(null);
+            } else {
+                const dataEtapa = parseDateFlexible(etapasDia[0].data);
+
+                if (dataEtapa <= ontem) {
+                    pendente.push({ value: d, itemStyle: { color: "#ee0303" } }); // vermelho
+                } else {
+                    pendente.push({ value: d, itemStyle: { color: "#007bff" } }); // azul
+                }
+
+                realizado.push(null);
+            }
         }
 
         const corRotulo = "#000";
@@ -450,15 +427,23 @@ window.addEventListener('load', () => {
                     const dataAtual = etapasDoDia[0].data;
 
                     const etapasHTML = etapasDoDia.map(i => {
-                        const cor = i.status === "REALIZADO" ? "#16eb5d" : "#ee0303";
+                        let cor;
+
+                        if (i.status === "REALIZADO") {
+                            cor = "#16eb5d";
+                        } else {
+                            const dataEtapa = parseDateFlexible(i.data);
+                            cor = dataEtapa <= ontem ? "#ee0303" : "#0853df";
+                        }
+
                         return `<span style="color:${cor}">● ${i.desc}</span>`;
                     }).join("<br>");
 
                     return `
-                        <div style="padding:8px; line-height:1.6;">
-                            <strong>${dataAtual}</strong><br><br>
-                            ${etapasHTML}
-                        </div>
+                    <div style="padding:8px; line-height:1.6;">
+                        <strong>${dataAtual}</strong><br><br>
+                        ${etapasHTML}
+                    </div>
                 `;
                 }
             },
@@ -485,7 +470,6 @@ window.addEventListener('load', () => {
                     name: 'PENDENTE',
                     type: 'bar',
                     barGap: '-100%',
-                    itemStyle: { color: '#ee0303' },
                     data: pendente
                 }
             ]

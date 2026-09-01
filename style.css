@@ -214,15 +214,18 @@ main .analyse {
 
 .charts-container {
     display: grid;
-    grid-template-columns: 30% 45% auto;
+    grid-template-columns: 70% auto;
     gap: 1.75rem;
 }
 
-.first-section,
-.second-section {
-    display: flex;
-    flex-direction: column;
+.first-section{
+    display: grid;
+    grid-template-columns: 35% auto;
     gap: 1.5rem;
+}
+
+.first-section > div:nth-child(3) {
+    grid-column: 1 / span 2;
 }
 
 .chart_card {
@@ -241,54 +244,12 @@ main .analyse {
     height: 100%;
 }
 
-/* --------------------------------------------- */
-/* TABELA */
-
-#tabela_etapas {
-    max-height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-#tabela_etapas::-webkit-scrollbar {
-    width: 6px;
-}
-
-.tabela-etapas {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#tabela_etapas::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 10px;
-}
-
-.tabela-etapas {
-    width: 100%;
-    height: 100%;
-    border-collapse: collapse;
-}
-
-.tabela-etapas th,
-.tabela-etapas td {
-    text-align: center;
-    vertical-align: center;
-    font-size: 15px;
-}
-
-.tabela-etapas thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: var(--color-white);
-}
 /* ------------------------------------------------------------ */
 
 /* CONTAINER EVOLUCAO */
 .progresso-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(135px, 2fr));
     gap: 15px;
     text-align: center;
     height: 100%;
@@ -411,13 +372,14 @@ screen and (orientation: portrait) {
 
     .charts-container {
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         gap: 1rem;
         width: 100%;
     }
 
-    .first-section,
-    .second-section {
+    .first-section{
+        display: flex ;
+        flex-direction: column;
         width: 100%;
     }
 

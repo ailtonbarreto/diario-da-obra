@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="./img/favicon.ico" type="image/x-icon">
-    <script async src="dash.js"></script>
+    <script defer src="dash.js"></script>
     <title>Diario da Obra</title>
 </head>
 
@@ -130,13 +130,11 @@
 
                     </div>
 
-
                     <h1 id="termino">-</h1>
 
                 </div>
 
             </div>
-
 
             <div class="charts-container">
 
@@ -150,38 +148,30 @@
 
                     </div>
 
-                    <div class="chart_card" style="z-index: 1000;">
-
-                        <div id="tabela_etapas"></div>
-
-                    </div>
-
-
-                </div>
-
-                <div class="second-section">
-
                     <div class="chart_card mobile">
 
                         <div id="cards_progresso" class="progresso-container"></div>
 
                     </div>
 
-                    <div class="chart_card">
+                    <div>
 
-                        <h3>Evolução Da Obra</h3>
+                        <div class="chart_card">
 
-                        <div id="line" style="width:100%;height:96%;"></div>
+                            <h3>Evolução Da Obra</h3>
+
+                            <div id="line" style="width:100%;height:96%;"></div>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-
                 <div>
 
-
                     <div class="chart_card" style="height:100%; width:100%;">
+
 
                         <div id="map"></div>
 
