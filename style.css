@@ -140,7 +140,6 @@ iframe{
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
 }
 
 
@@ -201,11 +200,6 @@ main .analyse {
 }
 
 
-main .card_kpi:hover {
-    box-shadow: 12px 10px 30px var(--color-light);
-}
-
-
 .card_kpi h3 {
     margin-left: 0.6rem;
     font-size: 1rem;
@@ -219,7 +213,7 @@ main .card_kpi:hover {
 
 .charts-container {
     display: grid;
-    grid-template-columns: 25% 45% auto;
+    grid-template-columns: 30% 45% auto;
     gap: 1.75rem;
 }
 
@@ -238,10 +232,6 @@ main .card_kpi:hover {
     padding: 0.5vw;
     height: 15vw;
     transition: all 0.3s ease;
-}
-
-.chart_card:hover {
-    box-shadow: var(--box-shadow);
 }
 
 
@@ -368,7 +358,6 @@ screen and (orientation: portrait) {
     }
 
     .header .datas {
-        width: 100%;
         flex-direction: column-reverse;
         gap: 0.8rem;
         padding: 1rem;
@@ -376,7 +365,6 @@ screen and (orientation: portrait) {
     }
 
     .user {
-        width: 100%;
         display: flex;
         align-items: center;
         gap: 1rem;

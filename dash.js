@@ -35,32 +35,101 @@ window.addEventListener('load', () => {
     }
 
     // ============================================================
-    // TEMA
-    // ============================================================
+    // MAPA
 
-    function atualizarTemaGraficos() {
-        // const cor = getCorRotulo();
+    function calcularPercentualObraSelecionada() {
+        const lista = calcularPercentuaisEtapas();
+        if (!lista.length) return 0;
 
-        const cor = "#000";
-
-        myChart.setOption({
-            series: [{
-                axisLabel: { color: cor },
-                detail: { color: cor }
-            }]
-        });
-
-        myLineChart.setOption({
-            xAxis: { axisLabel: { color: cor } },
-            yAxis: { axisLabel: { color: cor } }
-        });
-
-        atualizarTemaMapa();
-        graficoVelocimetro();
+        const soma = lista.reduce((acc, e) => acc + Number(e.percentual), 0);
+        return Math.round(soma / lista.length);
     }
 
-    new MutationObserver(atualizarTemaGraficos)
-        .observe(document.body, { attributes: true });
+
+    const iconVerde = L.icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    const iconVermelho = L.icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+
+    function escolherIconeVelocimetro(percentual) {
+        if (percentual === 100) return iconVerde;
+        return iconVermelho;
+    }
+
+
+    const lightTiles = L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
+    );
+
+    const map = L.map('map', {
+        center: [-20.5373611, -47.4548611],
+        zoom: 2,
+        layers: [lightTiles]
+    });
+
+
+
+    let marcadorAtual = null;
+
+    const obrasMapa = {
+        "Goioerê": {
+            coords: [-24.1858549, -53.012921],
+            popup: `
+                <div style="text-align:center;">
+                    <h3>Goioerê - PR</h3>
+                </div>
+            `
+        },
+
+        "Maringá": {
+            coords: [-23.4511371, -51.8540074],
+            popup: `
+                <div style="text-align:center;">
+                    <h3>Maringá - PR</h3>
+                </div>
+            `
+        }
+    };
+
+    function mapaObraSelecionada() {
+
+        const dados = obrasMapa[obraSelecionada];
+        if (!dados) return;
+
+        const percentual = calcularPercentualObraSelecionada();
+
+        const icone = escolherIconeVelocimetro(percentual);
+
+        if (marcadorAtual) map.removeLayer(marcadorAtual);
+
+        marcadorAtual = L.marker(dados.coords, { icon: icone })
+            .addTo(map)
+            .bindPopup(dados.popup)
+            .openPopup()
+            .on("click", () => selecionarObra(obraSelecionada));
+
+        map.flyTo(dados.coords, 6, { duration: 1.5 });
+    }
+
+    
+
+    // ------------------------------------------------------
+
 
 
     fetch(url)
@@ -115,16 +184,19 @@ window.addEventListener('load', () => {
 
             selecionarObra(obraSelecionada);
 
-            // CRIA MARCADORES NO MAPA
             Object.keys(obrasMapa).forEach(nome => {
                 const dados = obrasMapa[nome];
 
-                L.marker(dados.coords)
+                const percentual = calcularPercentualObraSelecionada();
+                const icone = escolherIconeVelocimetro(percentual);
+
+                L.marker(dados.coords, { icon: icone })
                     .addTo(map)
                     .bindPopup(dados.popup)
                     .on("click", () => selecionarObra(nome));
                     map.zoomControl.remove();
             });
+
 
         });
 
@@ -162,7 +234,6 @@ window.addEventListener('load', () => {
                     <tr>
                         <th>Data</th>
                         <th>Desc</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,19 +244,8 @@ window.addEventListener('load', () => {
 
             html += `
                 <tr>
-                    <td>${i.data || '-'}</td>
-                    <td>${i.desc || '-'}</td>
-                    <td>
-                        <span style="
-                            color:${corFundo};
-                            padding:4px 10px;
-                            border-radius:12px;
-                            font-size:12px;
-                            font-weight:600;
-                        ">
-                            ${i.status || '-'}
-                        </span>
-                    </td>
+                    <td style="color: ${corFundo};">${i.data || '-'}</td>
+                    <td style="color: ${corFundo};">${i.desc || '-'}</td>
                 </tr>
             `;
         });
@@ -252,6 +312,15 @@ window.addEventListener('load', () => {
     // ============================================================
     // EVOLUCAO CONTAINER
 
+    function corPorPercentual(p) {
+        p = Number(p);
+
+        if (p === 100) return "#07e777";
+        if (p >= 66) return "#eb8807";
+        if (p >= 33) return "#ff1010";
+        return "red";
+    }
+
 
     function calcularPercentuaisEtapas() {
         const obraNorm = normalizarNome(obraSelecionada);
@@ -288,12 +357,16 @@ window.addEventListener('load', () => {
         container.innerHTML = "";
 
         lista.forEach(item => {
+            const cor = corPorPercentual(item.percentual);
+
             container.innerHTML += `
             <div class="card-etapa">
                 <div class="titulo">${item.etapa}</div>
                 <div class="percentual">${item.percentual}%</div>
                 <div class="barra">
-                    <div class="preenchimento" style="width:${item.percentual}%"></div>
+                    <div class="preenchimento" 
+                         style="width:${item.percentual}%; background:${cor};">
+                    </div>
                 </div>
             </div>
         `;
@@ -449,8 +522,6 @@ window.addEventListener('load', () => {
         let corProgresso = '#ee0303';
         if (porcentagemRealizadoAteOntem === 100) corProgresso = '#00c851';
 
-        // const corRotulo = getCorRotulo();
-
         const corRotulo = "#000";
 
         myChart.setOption({
@@ -464,7 +535,7 @@ window.addEventListener('load', () => {
                 progress: {
                     show: true,
                     width: 18,
-                    itemStyle: { color: corProgresso }
+                    itemStyle: { color: "#0853df" }
                 },
 
                 axisLine: { lineStyle: { width: 18 } },
@@ -498,65 +569,6 @@ window.addEventListener('load', () => {
                 data: [{ value: porcentagemCronograma }]
             }]
         });
-    }
-
-    // ============================================================
-    // MAPA
-
-    const lightTiles = L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
-    );
-
-    const map = L.map('map', {
-        center: [-20.5373611, -47.4548611],
-        zoom: 2,
-        layers: [lightTiles]
-    });
-
-    let marcadorAtual = null;
-
-    const obrasMapa = {
-        "Goioerê": {
-            coords: [-24.1858549, -53.012921],
-            popup: `
-                <div style="text-align:center;">
-                    <h3>Goioerê - PR</h3>
-                    <img src="./img/fernando.png" style="width:80%; border-radius:10px;">
-                    <p>Engenheiro: Fernando Martins</p>
-                    <p><a href="https://wa.me/5516994632838" target="_blank">WhatsApp</a></p>
-                </div>
-            `
-        },
-
-        "Maringá": {
-            coords: [-23.4511371, -51.8540074],
-            popup: `
-                <div style="text-align:center;">
-                    <h3>Maringá - PR</h3>
-                    <img src="./img/cesar.png" style="width:80%; border-radius:10px;">
-                    <p>Engenheiro: César Pegorari</p>
-                    <p><a href="https://wa.me/5516994632838" target="_blank">WhatsApp</a></p>
-                </div>
-            `
-        }
-    };
-
-
-    function mapaObraSelecionada() {
-
-        const dados = obrasMapa[obraSelecionada];
-        if (!dados) return;
-
-        if (marcadorAtual) map.removeLayer(marcadorAtual);
-
-        marcadorAtual = L.marker(dados.coords)
-            .addTo(map)
-            .bindPopup(dados.popup)
-            .openPopup()
-            .on("click", () => selecionarObra(obraSelecionada));
-
-        map.flyTo(dados.coords, 15, { duration: 1.5 });
     }
 
 })
