@@ -120,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
             `
         },
 
-        "Franca UH-O3": {
+        "Franca UH-03": {
             coords: [-20.536524, -47.448063],
             popup: `
                 <div style="text-align:center;">

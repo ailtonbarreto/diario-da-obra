@@ -394,14 +394,22 @@ screen and (orientation: portrait) {
         height: 140vh;
     }
 
-    .progresso-container{
+    .card-etapa{
+        background-color: var(--color-white);
+        box-shadow: var(--box-shadow);
+        border-radius: var(--card-border-radius);
+    }
+
+    .progresso-container, .mobile{
         display: flex;
         flex-direction: column;
+        background-color: transparent;
+        box-shadow: none;
     }
 
     #map {
         width: 100%;
-        height: 70vh;
+        height: 50vh;
         padding: 0;
     }
 
