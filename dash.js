@@ -39,8 +39,8 @@ window.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // MAPA
 
-    function calcularPercentualRealizadoAteOntem() {
-        const obraNorm = normalizarNome(obraSelecionada);
+    function calcularPercentualRealizadoAteOntem(obra) {
+        const obraNorm = normalizarNome(obra);
 
         const itens = movimentacoesBrutas.filter(i =>
             normalizarNome(i.obra) === obraNorm
@@ -108,43 +108,94 @@ window.addEventListener('DOMContentLoaded', () => {
         layers: [lightTiles]
     });
 
+
+    // URL do CSV da planilha
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUZfSlgLpjKgGoGB9b_vLq9X10oX61iW7TJ_iUH4t4tmI02Kk4Xn8xyYo19vhQfoNtmVPLRhd-EFIC/pub?gid=1718725563&single=true&output=csv";
+
+ 
+    let marcadores = [];
     let marcadorAtual = null;
 
-    const obrasMapa = {
-        "Goioerê UH-02": {
-            coords: [-24.1858549, -53.012921],
-            popup: `
-                <div style="text-align:center;">
-                    <h3>Goioerê UH-02</h3>
-                </div>
-            `
-        },
 
-        "Franca UH-03": {
-            coords: [-20.536524, -47.448063],
-            popup: `
-                <div style="text-align:center;">
-                    <h3>Franca UH-03</h3>
-                </div>
-            `
-        },
+    let obrasMapa = {};
 
-        "Maringá UH-01": {
-            coords: [-23.4511371, -51.8540074],
-            popup: `
+    async function carregarObrasDoCSV() {
+
+        const resposta = await fetch(urlCSV);
+        const texto = await resposta.text();
+
+        const linhas = texto.split("\n").map(l => l.trim());
+        const cabecalho = linhas.shift().split(",");
+
+        const idxObra = cabecalho.indexOf("OBRA");
+        const idxGeo = cabecalho.indexOf("GEOLOCALIZACAO");
+
+        linhas.forEach(linha => {
+
+     
+            const matchGeo = linha.match(/"([^"]+)"/);
+            let geo = matchGeo ? matchGeo[1] : linha.split(",")[idxGeo];
+
+   
+            const partes = linha.replace(/"([^"]+)"/, "").split(",");
+            const obra = partes[idxObra]?.trim();
+
+            if (!obra || !geo) return;
+
+            const [lat, lng] = geo.split(",").map(v => Number(v.trim()));
+
+            obrasMapa[obra] = {
+                coords: [lat, lng],
+                popup: `
                 <div style="text-align:center;">
-                    <h3>Maringá UH-01</h3>
+                    <h3>${obra}</h3>
                 </div>
             `
+            };
+        });
+
+       
+        plotarTodasAsObras();
+    }
+
+    function plotarTodasAsObras() {
+
+        if (!Array.isArray(marcadores)) marcadores = [];
+
+        marcadores.forEach(m => map.removeLayer(m));
+        marcadores = [];
+
+        Object.keys(obrasMapa).forEach(obra => {
+            const dados = obrasMapa[obra];
+
+            
+            const percentual = calcularPercentualRealizadoAteOntem(obra);
+
+            const icone = escolherIconeVelocimetro(percentual);
+
+            const marcador = L.marker(dados.coords, { icon: icone })
+                .addTo(map)
+                .bindPopup(dados.popup)
+                .on("click", () => {
+                    selecionarObra(obra);
+                    mapaObraSelecionada();
+                });
+
+            marcadores.push(marcador);
+        });
+    }
+
+
+    async function mapaObraSelecionada() {
+
+        if (Object.keys(obrasMapa).length === 0) {
+            await carregarObrasDoCSV();
         }
-    };
-
-    function mapaObraSelecionada() {
 
         const dados = obrasMapa[obraSelecionada];
         if (!dados) return;
 
-        const percentualOntem = calcularPercentualRealizadoAteOntem();
+        const percentualOntem = calcularPercentualRealizadoAteOntem(obraSelecionada);
         const icone = escolherIconeVelocimetro(percentualOntem);
 
         if (marcadorAtual) map.removeLayer(marcadorAtual);
@@ -244,7 +295,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // ============================================================
     // INDICADORES
-
 
     function atualizarIndicadores() {
 
