@@ -112,7 +112,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // URL do CSV da planilha
     const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUZfSlgLpjKgGoGB9b_vLq9X10oX61iW7TJ_iUH4t4tmI02Kk4Xn8xyYo19vhQfoNtmVPLRhd-EFIC/pub?gid=1718725563&single=true&output=csv";
 
- 
+
     let marcadores = [];
     let marcadorAtual = null;
 
@@ -132,11 +132,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
         linhas.forEach(linha => {
 
-     
+
             const matchGeo = linha.match(/"([^"]+)"/);
             let geo = matchGeo ? matchGeo[1] : linha.split(",")[idxGeo];
 
-   
+
             const partes = linha.replace(/"([^"]+)"/, "").split(",");
             const obra = partes[idxObra]?.trim();
 
@@ -154,7 +154,7 @@ window.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-       
+
         plotarTodasAsObras();
     }
 
@@ -168,7 +168,7 @@ window.addEventListener('DOMContentLoaded', () => {
         Object.keys(obrasMapa).forEach(obra => {
             const dados = obrasMapa[obra];
 
-            
+
             const percentual = calcularPercentualRealizadoAteOntem(obra);
 
             const icone = escolherIconeVelocimetro(percentual);
@@ -180,6 +180,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     selecionarObra(obra);
                     mapaObraSelecionada();
                 });
+            map.zoomControl.remove();
 
             marcadores.push(marcador);
         });
