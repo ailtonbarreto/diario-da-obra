@@ -537,7 +537,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 : 0;
 
         let corProgresso = '#ee0303';
-        if (porcentagemRealizadoAteOntem === 100) corProgresso = '#00c851';
+        if (porcentagemRealizadoAteOntem === 100) corProgresso = '#0853df';
 
         const corRotulo = "#000";
 
@@ -552,7 +552,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 progress: {
                     show: true,
                     width: 18,
-                    itemStyle: { color: "#0853df" }
+                    itemStyle: { color: corProgresso }
                 },
 
                 axisLine: { lineStyle: { width: 18 } },
