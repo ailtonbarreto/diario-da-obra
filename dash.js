@@ -206,7 +206,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .openPopup()
             .on("click", () => selecionarObra(obraSelecionada));
 
-        map.flyTo(dados.coords, 11, { duration: 1.5 });
+        map.flyTo(dados.coords, 15, { duration: 1.5 });
     }
 
     // --------------------------------------------------------------------------------------------
