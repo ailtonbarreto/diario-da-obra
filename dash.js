@@ -109,7 +109,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // URL do CSV da planilha
     const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUZfSlgLpjKgGoGB9b_vLq9X10oX61iW7TJ_iUH4t4tmI02Kk4Xn8xyYo19vhQfoNtmVPLRhd-EFIC/pub?gid=1718725563&single=true&output=csv";
 
 
@@ -207,7 +206,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .openPopup()
             .on("click", () => selecionarObra(obraSelecionada));
 
-        map.flyTo(dados.coords, 6, { duration: 1.5 });
+        map.flyTo(dados.coords, 11, { duration: 1.5 });
     }
 
     // --------------------------------------------------------------------------------------------
