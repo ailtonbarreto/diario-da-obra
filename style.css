@@ -405,6 +405,7 @@ screen and (orientation: portrait) {
         flex-direction: column;
         background-color: transparent;
         box-shadow: none;
+        height: auto;
     }
 
     #map {
