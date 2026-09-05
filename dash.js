@@ -587,7 +587,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 : 0;
 
         let corProgresso = '#ee0303';
-        if (porcentagemRealizadoAteOntem === 100) corProgresso = '#0853df';
+        if (porcentagemRealizadoAteOntem === 100) corProgresso = '#07e777';
 
         const corRotulo = "#000";
 
