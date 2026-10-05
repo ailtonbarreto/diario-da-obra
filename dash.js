@@ -104,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const map = L.map('map', {
         center: [-20.5373611, -47.4548611],
-        zoom: 2,
+        zoom: 3,
         layers: [lightTiles]
     });
 
@@ -206,7 +206,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .openPopup()
             .on("click", () => selecionarObra(obraSelecionada));
 
-        map.flyTo(dados.coords, 15, { duration: 1.5 });
+        map.flyTo(dados.coords, 5, { duration: 1.5 });
     }
 
     // --------------------------------------------------------------------------------------------
