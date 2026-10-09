@@ -99,12 +99,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const lightTiles = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
+        { maxZoom: 14, attribution: '&copy; OpenStreetMap contributors' }
     );
 
     const map = L.map('map', {
         center: [-20.5373611, -47.4548611],
-        zoom: 3,
+        zoom: 4,
         layers: [lightTiles]
     });
 
@@ -206,7 +206,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .openPopup()
             .on("click", () => selecionarObra(obraSelecionada));
 
-        map.flyTo(dados.coords, 5, { duration: 1.5 });
+        map.flyTo(dados.coords, 13, { duration: 1.5 });
     }
 
     // --------------------------------------------------------------------------------------------
