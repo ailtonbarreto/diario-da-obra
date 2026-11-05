@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const lightTiles = L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { maxZoom: 14, attribution: '&copy; OpenStreetMap contributors' }
+        { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }
     );
 
     const map = L.map('map', {
